@@ -4,7 +4,7 @@ import { ProfileView } from "@/components/ProfileView";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-const Profile = () => {
+const UserProfile = () => {
   const { data: session } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
@@ -20,4 +20,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default UserProfile;

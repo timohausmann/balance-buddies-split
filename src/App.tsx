@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import Groups from "./pages/Groups";
 import GroupDetail from "./pages/GroupDetail";
 import Profile from "./pages/Profile";
+import UserProfile from "./pages/UserProfile";
 import EditProfile from "./pages/EditProfile";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,6 +84,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/:id"
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
                 </ProtectedRoute>
               }
             />
