@@ -49,7 +49,11 @@ export function ProfileView({ sessionUserId }: ProfileViewProps) {
           </h1>
           {isOwnProfile && (
             <Link to="/profile/edit">
-              <Button variant="ghost" size="icon">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors"
+              >
                 <Pencil className="h-4 w-4" />
               </Button>
             </Link>

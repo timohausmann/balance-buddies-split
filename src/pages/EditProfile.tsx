@@ -4,17 +4,95 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const EditProfile = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) throw new Error('No session');
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  const [displayName, setDisplayName] = useState(profile?.display_name || '');
+  const [email, setEmail] = useState(session?.user?.email || '');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Profile updated",
-      description: "Your profile has been updated successfully.",
-    });
+
+    try {
+      // Update email if changed
+      if (email !== session?.user?.email) {
+        const { error: emailError } = await supabase.auth.updateUser({
+          email: email,
+        });
+        if (emailError) throw emailError;
+      }
+
+      // Update password if provided
+      if (newPassword) {
+        const { error: passwordError } = await supabase.auth.updateUser({
+          password: newPassword
+        });
+        if (passwordError) throw passwordError;
+      }
+
+      // Update profile display name
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ display_name: displayName })
+        .eq('id', session?.user?.id);
+
+      if (profileError) throw profileError;
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+
+      navigate('/profile');
+    } catch (error: any) {
+      toast({
+        title: "Error updating profile",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
+
+  if (!profile || !session) {
+    return (
+      <MainLayout>
+        <div>Loading...</div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -30,7 +108,8 @@ const EditProfile = () => {
             <Input
               id="displayName"
               placeholder="Enter your display name"
-              defaultValue="John Doe"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
             />
           </div>
 
@@ -40,7 +119,8 @@ const EditProfile = () => {
               id="email"
               type="email"
               placeholder="Enter your email"
-              defaultValue="john@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
@@ -50,6 +130,8 @@ const EditProfile = () => {
               id="currentPassword"
               type="password"
               placeholder="Enter current password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
             />
           </div>
 
@@ -59,6 +141,8 @@ const EditProfile = () => {
               id="newPassword"
               type="password"
               placeholder="Enter new password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
             />
           </div>
 
