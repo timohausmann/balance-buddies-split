@@ -26,7 +26,7 @@ const Index = () => {
         .from('profiles')
         .select('display_name')
         .eq('id', session.user.id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
