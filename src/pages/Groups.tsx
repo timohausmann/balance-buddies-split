@@ -36,7 +36,10 @@ const Groups = () => {
       
       if (error) throw error;
       return data;
-    }
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0
   });
 
   const handleCreateGroup = async (e: React.FormEvent) => {
