@@ -24,10 +24,14 @@ export function MobileNav({ groups, onClose, onLogout }: MobileNavProps) {
           Dashboard
         </Link>
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
+          <Link
+            to="/groups"
+            className="flex items-center gap-2 text-lg font-semibold"
+            onClick={onClose}
+          >
             <Users className="h-5 w-5" />
-            <span className="text-lg font-semibold">Groups</span>
-          </div>
+            Groups
+          </Link>
           {groups?.map((group) => (
             <Link
               key={group.id}
@@ -38,13 +42,6 @@ export function MobileNav({ groups, onClose, onLogout }: MobileNavProps) {
               {group.title}
             </Link>
           ))}
-          <Link
-            to="/groups"
-            className="ml-7 text-sm text-muted-foreground hover:text-foreground"
-            onClick={onClose}
-          >
-            View all groups
-          </Link>
         </div>
         <Link
           to="/profile"

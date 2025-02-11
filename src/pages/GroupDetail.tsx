@@ -1,22 +1,54 @@
 
+import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Users, Edit } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const GroupDetail = () => {
+  const { id } = useParams<{ id: string }>();
+
+  const { data: group } = useQuery({
+    queryKey: ['group', id],
+    queryFn: async () => {
+      if (!id) throw new Error('No group ID provided');
+      
+      const { data, error } = await supabase
+        .from('groups')
+        .select(`
+          *,
+          group_members (
+            profiles (
+              id,
+              display_name
+            )
+          )
+        `)
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id
+  });
+
   return (
     <MainLayout>
       <div className="max-w-4xl mx-auto">
         <header className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-neutral-900 mb-2">Sample Group</h1>
+            <h1 className="text-3xl font-bold text-neutral-900 mb-2">{group?.title}</h1>
             <p className="text-neutral-500 line-clamp-2">
-              This is a sample group description that might be longer and need to be clamped after two lines of text.
+              {group?.description}
             </p>
             <div className="flex items-center gap-2 mt-2">
               <Users className="h-4 w-4 text-neutral-500" />
-              <span className="text-sm text-neutral-500">4 people</span>
+              <span className="text-sm text-neutral-500">
+                {group?.group_members?.length || 0} people
+              </span>
             </div>
           </div>
           <Dialog>
@@ -34,14 +66,12 @@ const GroupDetail = () => {
                 <div>
                   <h3 className="font-medium mb-2">Members</h3>
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between p-2 bg-neutral-50 rounded-md">
-                      <span>John Doe</span>
-                      <span className="text-sm text-neutral-500">Admin</span>
-                    </div>
-                    <div className="flex items-center justify-between p-2 bg-neutral-50 rounded-md">
-                      <span>Jane Smith</span>
-                      <span className="text-sm text-neutral-500">Member</span>
-                    </div>
+                    {group?.group_members?.map((member) => (
+                      <div key={member.profiles?.id} className="flex items-center justify-between p-2 bg-neutral-50 rounded-md">
+                        <span>{member.profiles?.display_name}</span>
+                        <span className="text-sm text-neutral-500">Member</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 <Button className="w-full">Copy Invite Link</Button>

@@ -29,13 +29,13 @@ export function MainLayout({ children }: MainLayoutProps) {
   });
 
   const { data: groups } = useQuery({
-    queryKey: ['groups'],
+    queryKey: ['groups', 'navigation'],
     queryFn: async () => {
       if (!session) throw new Error('No session');
       
       const { data, error } = await supabase
         .from('groups')
-        .select('id, title, group_members!inner(user_id)')
+        .select('id, title')
         .order('title');
       
       if (error) throw error;
