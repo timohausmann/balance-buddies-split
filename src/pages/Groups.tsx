@@ -23,7 +23,7 @@ const Groups = () => {
   const navigate = useNavigate();
 
   const { data: groups, refetch } = useQuery({
-    queryKey: ['groups'],
+    queryKey: ['groups', 'full'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('groups')

@@ -35,7 +35,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       
       const { data, error } = await supabase
         .from('groups')
-        .select('id, title')
+        .select('id, title, group_members!inner(user_id)')
         .order('title');
       
       if (error) throw error;
