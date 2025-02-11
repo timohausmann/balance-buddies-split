@@ -1,3 +1,4 @@
+
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,12 +6,13 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const EditProfile = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -37,13 +39,24 @@ const EditProfile = () => {
     enabled: !!session?.user?.id,
   });
 
-  const [displayName, setDisplayName] = useState(profile?.display_name || '');
-  const [email, setEmail] = useState(session?.user?.email || '');
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
+  // Initialize form values when profile data is loaded
+  useEffect(() => {
+    if (profile?.display_name) {
+      setDisplayName(profile.display_name);
+    }
+    if (session?.user?.email) {
+      setEmail(session.user.email);
+    }
+  }, [profile, session]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       // Validate password fields
@@ -53,6 +66,7 @@ const EditProfile = () => {
           description: "Please enter a new password or clear the current password field.",
           variant: "destructive",
         });
+        setIsSubmitting(false);
         return;
       }
 
@@ -74,6 +88,7 @@ const EditProfile = () => {
               description: "Please enter your current password to change it.",
               variant: "destructive",
             });
+            setIsSubmitting(false);
             return;
           }
           // Verify current password first
@@ -88,6 +103,7 @@ const EditProfile = () => {
               description: "Please check your current password and try again.",
               variant: "destructive",
             });
+            setIsSubmitting(false);
             return;
           }
 
@@ -132,6 +148,7 @@ const EditProfile = () => {
         description: error.message,
         variant: "destructive",
       });
+      setIsSubmitting(false);
     }
   };
 
@@ -201,8 +218,8 @@ const EditProfile = () => {
             />
           </div>
 
-          <Button type="submit" className="w-full">
-            Save Changes
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Save Changes"}
           </Button>
         </form>
       </div>

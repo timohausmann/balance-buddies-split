@@ -17,6 +17,23 @@ const Index = () => {
     },
   });
 
+  const { data: profile } = useQuery({
+    queryKey: ['profile', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) throw new Error('No session');
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+
   const { data: recentExpenses } = useQuery({
     queryKey: ['recent-expenses'],
     queryFn: async () => {
@@ -72,9 +89,7 @@ const Index = () => {
       <div className="max-w-2xl mx-auto">
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-            {session?.user.user_metadata.display_name 
-              ? `Hello, ${session.user.user_metadata.display_name}` 
-              : "Hello!"}
+            {profile?.display_name ? `Hello, ${profile.display_name}` : "Hello!"}
           </h1>
           <p className="text-neutral-500">Here are your recent expenses</p>
         </header>
