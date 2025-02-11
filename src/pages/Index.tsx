@@ -39,7 +39,6 @@ const Index = () => {
     queryFn: async () => {
       if (!session) throw new Error('No session');
 
-      // First get the user's group ids
       const { data: groupMemberships } = await supabase
         .from('group_members')
         .select('group_id')
@@ -49,7 +48,6 @@ const Index = () => {
       
       const groupIds = groupMemberships.map(gm => gm.group_id);
 
-      // Then get expenses for those groups
       const { data, error } = await supabase
         .from('expenses')
         .select(`
@@ -91,7 +89,7 @@ const Index = () => {
       <div className="max-w-2xl mx-auto">
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-            Hello, {profile?.display_name}
+            {profile?.display_name ? `Hello, ${profile.display_name}` : "Hello!"}
           </h1>
           <p className="text-neutral-500">Here are your recent expenses</p>
         </header>

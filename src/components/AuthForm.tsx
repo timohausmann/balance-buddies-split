@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Mail } from "lucide-react";
+import { Mail, User } from "lucide-react";
 
 export const AuthForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -21,40 +22,37 @@ export const AuthForm = () => {
     setIsLoading(true);
 
     try {
-      const { error } = isSignUp
-        ? await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: window.location.origin,
-            },
-          })
-        : await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-        return;
-      }
-
       if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: {
+              display_name: displayName,
+            },
+          },
+        });
+
+        if (error) throw error;
+
         toast({
           title: "Check your email",
           description: "We sent you a confirmation link.",
         });
       } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
         navigate("/dashboard");
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -74,6 +72,23 @@ export const AuthForm = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {isSignUp && (
+          <div className="space-y-2">
+            <Label htmlFor="displayName">Name</Label>
+            <div className="relative">
+              <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                id="displayName"
+                placeholder="Enter your name"
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="pl-10"
+                required
+              />
+            </div>
+          </div>
+        )}
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <div className="relative">
