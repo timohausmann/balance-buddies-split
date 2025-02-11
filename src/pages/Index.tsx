@@ -28,7 +28,15 @@ const Index = () => {
         .eq('id', session.user.id)
         .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        toast({
+          title: "Error fetching profile",
+          description: "Please try refreshing the page",
+          variant: "destructive",
+        });
+        throw error;
+      }
       return data;
     },
     enabled: !!session,
