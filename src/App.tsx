@@ -8,6 +8,10 @@ import { useEffect, useState } from "react";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
+import Groups from "./pages/Groups";
+import GroupDetail from "./pages/GroupDetail";
+import Profile from "./pages/Profile";
+import EditProfile from "./pages/EditProfile";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -62,7 +66,7 @@ const App = () => {
               path="/groups"
               element={
                 <ProtectedRoute>
-                  <div>Groups overview (coming soon)</div>
+                  <Groups />
                 </ProtectedRoute>
               }
             />
@@ -70,7 +74,7 @@ const App = () => {
               path="/groups/:id"
               element={
                 <ProtectedRoute>
-                  <div>Group detail (coming soon)</div>
+                  <GroupDetail />
                 </ProtectedRoute>
               }
             />
@@ -78,7 +82,15 @@ const App = () => {
               path="/profile"
               element={
                 <ProtectedRoute>
-                  <div>Profile (coming soon)</div>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/edit"
+              element={
+                <ProtectedRoute>
+                  <EditProfile />
                 </ProtectedRoute>
               }
             />
