@@ -70,6 +70,8 @@ const EditProfile = () => {
         return;
       }
 
+      let emailUpdateInitiated = false;
+
       // Handle auth-specific updates (email/password)
       if (email !== session?.user?.email || newPassword) {
         const authUpdates: {
@@ -79,6 +81,7 @@ const EditProfile = () => {
 
         if (email !== session?.user?.email) {
           authUpdates.email = email;
+          emailUpdateInitiated = true;
         }
 
         if (newPassword) {
@@ -136,10 +139,13 @@ const EditProfile = () => {
 
       if (profileError) throw profileError;
 
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
-      });
+      // Only show the general success toast if email wasn't updated
+      if (!emailUpdateInitiated) {
+        toast({
+          title: "Profile updated",
+          description: "Your profile has been updated successfully.",
+        });
+      }
 
       navigate('/profile');
     } catch (error: any) {
