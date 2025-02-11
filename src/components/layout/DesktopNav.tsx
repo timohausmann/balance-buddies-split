@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, Users, User, LogOut } from "lucide-react";
@@ -73,7 +72,7 @@ export function DesktopNav({ groups, displayName, onLogout }: DesktopNavProps) {
                 <LogOut className="h-5 w-5" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent className="bg-white">
               <p>Logout</p>
             </TooltipContent>
           </Tooltip>

@@ -10,11 +10,15 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { currencies } from "@/lib/currencies";
 
 const Groups = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [currency, setCurrency] = useState("EUR");
+  const [customCurrency, setCustomCurrency] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -45,7 +49,7 @@ const Groups = () => {
           {
             title,
             description: description || null,
-            default_currency: 'EUR',
+            default_currency: currency === 'other' ? customCurrency : currency,
             default_spread: 'equal'
           }
         ]);
@@ -60,6 +64,8 @@ const Groups = () => {
       setIsDialogOpen(false);
       setTitle("");
       setDescription("");
+      setCurrency("EUR");
+      setCustomCurrency("");
       refetch();
     } catch (error: any) {
       toast({
@@ -111,7 +117,29 @@ const Groups = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="currency">Default Currency</Label>
-                  <Input id="currency" value="EUR" disabled />
+                  <Select value={currency} onValueChange={setCurrency}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currencies.map((curr) => (
+                        <SelectItem key={curr.code} value={curr.code}>
+                          {curr.code} ({curr.symbol}) - {curr.name}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {currency === 'other' && (
+                    <div className="mt-2">
+                      <Input
+                        placeholder="Enter currency code (e.g. THB)"
+                        value={customCurrency}
+                        onChange={(e) => setCustomCurrency(e.target.value.slice(0, 24))}
+                        required
+                      />
+                    </div>
+                  )}
                 </div>
                 <Button type="submit" className="w-full">Create Group</Button>
               </form>
