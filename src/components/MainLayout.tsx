@@ -22,9 +22,19 @@ export function MainLayout({ children }: MainLayoutProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
   const { data: groups } = useQuery({
     queryKey: ['groups'],
     queryFn: async () => {
+      if (!session) throw new Error('No session');
+      
       const { data, error } = await supabase
         .from('groups')
         .select('id, title')
@@ -32,24 +42,25 @@ export function MainLayout({ children }: MainLayoutProps) {
       
       if (error) throw error;
       return data as Group[];
-    }
+    },
+    enabled: !!session, // Only run this query if we have a session
   });
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
+      if (!session) throw new Error('No session');
 
       const { data, error } = await supabase
         .from('profiles')
         .select('display_name')
-        .eq('id', user.id)
+        .eq('id', session.user.id)
         .single();
       
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: !!session, // Only run this query if we have a session
   });
 
   const handleLogout = async () => {
