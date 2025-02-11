@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { createClientComponentClient } from "@supabase/auth-helpers-react";
+import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
@@ -12,10 +12,13 @@ import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -24,7 +27,7 @@ const App = () => {
     };
 
     checkAuth();
-  }, [supabase]);
+  }, []);
 
   if (isAuthenticated === null) {
     return null; // Or a loading spinner
