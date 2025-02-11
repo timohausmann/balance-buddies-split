@@ -47,29 +47,63 @@ const EditProfile = () => {
     e.preventDefault();
 
     try {
-      // Update email if changed
+      // If we want to change the password, verify the current password first
+      if (newPassword && !currentPassword) {
+        toast({
+          title: "Current password required",
+          description: "Please enter your current password to change it.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Build the updateUser options object
+      const updateOptions: {
+        email?: string;
+        password?: string;
+        data?: { display_name: string };
+      } = {};
+
+      // Only include changed values
       if (email !== session?.user?.email) {
-        const { error: emailError } = await supabase.auth.updateUser({
-          email: email,
-        });
-        if (emailError) throw emailError;
+        updateOptions.email = email;
       }
 
-      // Update password if provided
       if (newPassword) {
-        const { error: passwordError } = await supabase.auth.updateUser({
-          password: newPassword
+        if (!currentPassword) {
+          toast({
+            title: "Current password required",
+            description: "Please enter your current password to change it.",
+            variant: "destructive",
+          });
+          return;
+        }
+        // Verify current password first
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: session?.user?.email || '',
+          password: currentPassword,
         });
-        if (passwordError) throw passwordError;
+
+        if (signInError) {
+          toast({
+            title: "Invalid current password",
+            description: "Please check your current password and try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        updateOptions.password = newPassword;
       }
 
-      // Update profile display name
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ display_name: displayName })
-        .eq('id', session?.user?.id);
+      // Update display name through user metadata to batch it with other changes
+      updateOptions.data = { display_name: displayName };
 
-      if (profileError) throw profileError;
+      // Make a single updateUser call with all changes
+      const { error: updateError } = await supabase.auth.updateUser(updateOptions);
+      if (updateError) throw updateError;
+
+      // No need for a separate profiles table update since we're using user metadata
 
       toast({
         title: "Profile updated",
@@ -129,7 +163,7 @@ const EditProfile = () => {
             <Input
               id="currentPassword"
               type="password"
-              placeholder="Enter current password"
+              placeholder="Required to change password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
             />
