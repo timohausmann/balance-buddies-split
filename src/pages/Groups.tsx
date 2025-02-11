@@ -29,7 +29,7 @@ const Groups = () => {
         .from('groups')
         .select(`
           *,
-          group_members!inner (
+          group_members (
             user_id
           )
         `);
@@ -121,7 +121,7 @@ const Groups = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white">
                       {currencies.map((curr) => (
                         <SelectItem key={curr.code} value={curr.code}>
                           {curr.code} ({curr.symbol}) - {curr.name}
