@@ -1,3 +1,4 @@
+
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { ChevronLeft } from "lucide-react";
 
 const EditProfile = () => {
   const { toast } = useToast();
@@ -168,6 +170,11 @@ const EditProfile = () => {
   return (
     <MainLayout>
       <div className="max-w-md mx-auto">
+        <Link to="/profile" className="inline-flex items-center text-sm text-neutral-500 hover:text-neutral-900 mb-6">
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Back to Profile
+        </Link>
+        
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-900 mb-2">Edit Profile</h1>
           <p className="text-neutral-500">Update your personal information</p>
