@@ -7,14 +7,67 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Groups = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleCreateGroup = (e: React.FormEvent) => {
+  const { data: groups, refetch } = useQuery({
+    queryKey: ['groups'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('groups')
+        .select(`
+          *,
+          group_members!inner (
+            user_id
+          )
+        `);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const handleCreateGroup = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add group creation logic later
-    setIsDialogOpen(false);
+    
+    try {
+      const { error } = await supabase
+        .from('groups')
+        .insert([
+          {
+            title,
+            description: description || null,
+            default_currency: 'EUR',
+            default_spread: 'equal'
+          }
+        ]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Group created successfully",
+      });
+
+      setIsDialogOpen(false);
+      setTitle("");
+      setDescription("");
+      refetch();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -39,15 +92,26 @@ const Groups = () => {
               <form onSubmit={handleCreateGroup} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="title">Group Name</Label>
-                  <Input id="title" placeholder="Enter group name" required />
+                  <Input 
+                    id="title" 
+                    placeholder="Enter group name" 
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="description">Description</Label>
-                  <Input id="description" placeholder="Enter group description" />
+                  <Input 
+                    id="description" 
+                    placeholder="Enter group description" 
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="currency">Default Currency</Label>
-                  <Input id="currency" placeholder="USD" />
+                  <Input id="currency" value="EUR" disabled />
                 </div>
                 <Button type="submit" className="w-full">Create Group</Button>
               </form>
@@ -56,15 +120,22 @@ const Groups = () => {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Placeholder cards for groups */}
-          <div className="card p-6 space-y-4">
-            <h3 className="text-xl font-semibold">Sample Group</h3>
-            <p className="text-sm text-neutral-500">No expenses yet</p>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-neutral-500">3 members</span>
-              <Button variant="outline" size="sm">View Details</Button>
+          {groups?.map((group) => (
+            <div key={group.id} className="card p-6 space-y-4">
+              <h3 className="text-xl font-semibold">{group.title}</h3>
+              {group.description && (
+                <p className="text-sm text-neutral-500">{group.description}</p>
+              )}
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-neutral-500">
+                  {group.group_members?.length || 0} members
+                </span>
+                <Button variant="outline" size="sm" onClick={() => navigate(`/groups/${group.id}`)}>
+                  View Details
+                </Button>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </MainLayout>

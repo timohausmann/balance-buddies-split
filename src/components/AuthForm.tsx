@@ -111,6 +111,7 @@ export const AuthForm = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder={isSignUp ? "Create a secure password" : "Enter your password"}
             required
           />
           {isSignUp && (
