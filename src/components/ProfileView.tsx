@@ -43,8 +43,8 @@ export function ProfileView({ sessionUserId }: ProfileViewProps) {
         <div className="w-24 h-24 bg-neutral-100 rounded-full mx-auto mb-4 flex items-center justify-center">
           <User className="h-12 w-12 text-neutral-400" />
         </div>
-        <div className="flex items-center justify-center gap-3">
-          <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <h1 className="text-3xl font-bold text-neutral-900">
             {profile.display_name}
           </h1>
           {isOwnProfile && (
