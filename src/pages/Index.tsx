@@ -9,29 +9,47 @@ import { supabase } from "@/integrations/supabase/client";
 const Index = () => {
   const { toast } = useToast();
 
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
+      if (!session) throw new Error('No session');
 
       const { data, error } = await supabase
         .from('profiles')
         .select('display_name')
-        .eq('id', user.id)
+        .eq('id', session.user.id)
         .single();
       
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: !!session,
   });
 
   const { data: recentExpenses } = useQuery({
     queryKey: ['recent-expenses'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
+      if (!session) throw new Error('No session');
 
+      // First get the user's group ids
+      const { data: groupMemberships } = await supabase
+        .from('group_members')
+        .select('group_id')
+        .eq('user_id', session.user.id);
+
+      if (!groupMemberships) return [];
+      
+      const groupIds = groupMemberships.map(gm => gm.group_id);
+
+      // Then get expenses for those groups
       const { data, error } = await supabase
         .from('expenses')
         .select(`
@@ -44,18 +62,14 @@ const Index = () => {
           groups!inner(title),
           expense_participants!inner(user_id)
         `)
-        .in('group_id', (
-          supabase
-            .from('group_members')
-            .select('group_id')
-            .eq('user_id', user.id)
-        ))
+        .in('group_id', groupIds)
         .order('created_at', { ascending: false })
         .limit(8);
       
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: !!session,
   });
 
   const handleAddExpense = () => {
