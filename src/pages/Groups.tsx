@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { currencies } from "@/lib/currencies";
+import { GroupsList } from "@/components/GroupsList";
 
 const Groups = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -27,7 +29,9 @@ const Groups = () => {
       const { data, error } = await supabase
         .from('groups')
         .select(`
-          *,
+          id,
+          title,
+          description,
           group_members (
             user_id
           )

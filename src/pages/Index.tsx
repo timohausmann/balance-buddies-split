@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { ExpenseCard } from "@/components/ExpenseCard";
@@ -76,10 +77,15 @@ const Index = () => {
       if (!session?.user?.id) throw new Error('No session');
       
       const { data, error } = await supabase
-        .from('group_members')
-        .select('group_id')
-        .eq('user_id', session.user.id)
-        .select('groups!inner(title)')
+        .from('groups')
+        .select(`
+          id,
+          title,
+          description,
+          group_members!inner (
+            user_id
+          )
+        `)
         .limit(4);
       
       if (error) throw error;
