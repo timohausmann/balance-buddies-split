@@ -1,4 +1,3 @@
-
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,16 +46,6 @@ const EditProfile = () => {
     e.preventDefault();
 
     try {
-      // If we want to change the password, verify the current password first
-      if (newPassword && !currentPassword) {
-        toast({
-          title: "Current password required",
-          description: "Please enter your current password to change it.",
-          variant: "destructive",
-        });
-        return;
-      }
-
       // Build the updateUser options object
       const updateOptions: {
         email?: string;
@@ -103,8 +92,6 @@ const EditProfile = () => {
       const { error: updateError } = await supabase.auth.updateUser(updateOptions);
       if (updateError) throw updateError;
 
-      // No need for a separate profiles table update since we're using user metadata
-
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully.",
@@ -138,23 +125,29 @@ const EditProfile = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="displayName">Display Name</Label>
+            <Label htmlFor="displayName">
+              Display Name <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="displayName"
               placeholder="Enter your display name"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
+              required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">
+              Email <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="email"
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
 

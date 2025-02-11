@@ -52,9 +52,9 @@ export function ProfileView({ sessionUserId }: ProfileViewProps) {
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors"
+                className="rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors h-8 w-8"
               >
-                <Pencil className="h-4 w-4" />
+                <Pencil className="h-3 w-3" />
               </Button>
             </Link>
           )}
