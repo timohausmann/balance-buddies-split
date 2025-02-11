@@ -46,6 +46,16 @@ const EditProfile = () => {
     e.preventDefault();
 
     try {
+      // Validate password fields
+      if (currentPassword && !newPassword) {
+        toast({
+          title: "New password required",
+          description: "Please enter a new password or clear the current password field.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Handle auth-specific updates (email/password)
       if (email !== session?.user?.email || newPassword) {
         const authUpdates: {
@@ -88,6 +98,14 @@ const EditProfile = () => {
         if (Object.keys(authUpdates).length > 0) {
           const { error: authError } = await supabase.auth.updateUser(authUpdates);
           if (authError) throw authError;
+
+          // Show email confirmation toast if email was changed
+          if (authUpdates.email) {
+            toast({
+              title: "Email update initiated",
+              description: "A confirmation email has been sent to your new email address. Please check your inbox.",
+            });
+          }
         }
       }
 
