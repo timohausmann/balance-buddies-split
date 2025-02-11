@@ -19,8 +19,10 @@ const GroupDetail = () => {
         .from('groups')
         .select(`
           *,
-          group_members (
-            profiles (
+          group_members!inner (
+            user_id,
+            is_admin,
+            profiles!inner (
               id,
               display_name
             )
@@ -67,9 +69,11 @@ const GroupDetail = () => {
                   <h3 className="font-medium mb-2">Members</h3>
                   <div className="space-y-2">
                     {group?.group_members?.map((member) => (
-                      <div key={member.profiles?.id} className="flex items-center justify-between p-2 bg-neutral-50 rounded-md">
-                        <span>{member.profiles?.display_name}</span>
-                        <span className="text-sm text-neutral-500">Member</span>
+                      <div key={member.profiles.id} className="flex items-center justify-between p-2 bg-neutral-50 rounded-md">
+                        <span>{member.profiles.display_name}</span>
+                        <span className="text-sm text-neutral-500">
+                          {member.is_admin ? 'Admin' : 'Member'}
+                        </span>
                       </div>
                     ))}
                   </div>
