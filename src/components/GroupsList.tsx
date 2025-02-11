@@ -5,15 +5,12 @@ import { Group } from "@/components/layout/types";
 
 interface GroupsListProps {
   groups?: Group[];
-  limit?: number;
 }
 
-export function GroupsList({ groups = [], limit }: GroupsListProps) {
-  const displayGroups = limit ? groups.slice(0, limit) : groups;
-
+export function GroupsList({ groups = [] }: GroupsListProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {displayGroups.map((group) => (
+      {groups.map((group) => (
         <div key={group.id} className="card p-6 space-y-4">
           <h3 className="text-xl font-semibold">{group.title}</h3>
           {group.description && (

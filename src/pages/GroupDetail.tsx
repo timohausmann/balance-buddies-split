@@ -38,7 +38,7 @@ const GroupDetail = () => {
 
   return (
     <MainLayout>
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-2xl mx-auto">
         <header className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-3xl font-bold text-neutral-900 mb-2">{group?.title}</h1>
