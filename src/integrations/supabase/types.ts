@@ -9,7 +9,177 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      expense_participants: {
+        Row: {
+          created_at: string
+          expense_id: string
+          id: string
+          share_amount: number | null
+          share_percentage: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expense_id: string
+          id?: string
+          share_amount?: number | null
+          share_percentage?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expense_id?: string
+          id?: string
+          share_amount?: number | null
+          share_percentage?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_participants_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by_user_id: string
+          currency: string
+          description: string | null
+          expense_date: string
+          group_id: string
+          id: string
+          paid_by_user_id: string
+          spread_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by_user_id: string
+          currency?: string
+          description?: string | null
+          expense_date?: string
+          group_id: string
+          id?: string
+          paid_by_user_id: string
+          spread_type: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by_user_id?: string
+          currency?: string
+          description?: string | null
+          expense_date?: string
+          group_id?: string
+          id?: string
+          paid_by_user_id?: string
+          spread_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_members: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          is_admin: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          is_admin?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          is_admin?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          created_at: string
+          default_currency: string
+          default_spread: string
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_currency?: string
+          default_spread?: string
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_currency?: string
+          default_spread?: string
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
