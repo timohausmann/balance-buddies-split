@@ -113,6 +113,11 @@ export const AuthForm = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          {isSignUp && (
+            <p className="text-sm text-gray-500">
+              Password must be at least 8 characters long and contain letters and digits
+            </p>
+          )}
         </div>
 
         <Button className="w-full" type="submit" disabled={isLoading}>
