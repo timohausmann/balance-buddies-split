@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, Users, User, LogOut } from "lucide-react";
@@ -27,10 +28,13 @@ export function DesktopNav({ groups, displayName, onLogout }: DesktopNavProps) {
           Dashboard
         </Link>
         <div className="relative group">
-          <div className="flex items-center gap-2 font-medium cursor-pointer">
+          <Link
+            to="/groups"
+            className="flex items-center gap-2 font-medium cursor-pointer"
+          >
             <Users className="h-5 w-5" />
             Groups
-          </div>
+          </Link>
           <div className="absolute left-0 top-full hidden group-hover:block bg-white shadow-lg rounded-md p-2 min-w-[200px]">
             {groups?.map((group) => (
               <Link
@@ -41,12 +45,6 @@ export function DesktopNav({ groups, displayName, onLogout }: DesktopNavProps) {
                 {group.title}
               </Link>
             ))}
-            <Link
-              to="/groups"
-              className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-neutral-50"
-            >
-              View all groups
-            </Link>
           </div>
         </div>
       </nav>

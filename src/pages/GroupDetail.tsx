@@ -20,6 +20,7 @@ const GroupDetail = () => {
         .select(`
           *,
           group_members (
+            is_admin,
             profiles (
               id,
               display_name
@@ -47,7 +48,7 @@ const GroupDetail = () => {
             <div className="flex items-center gap-2 mt-2">
               <Users className="h-4 w-4 text-neutral-500" />
               <span className="text-sm text-neutral-500">
-                {group?.group_members?.length || 0} people
+                {group?.group_members?.length || 0} members
               </span>
             </div>
           </div>
@@ -69,7 +70,9 @@ const GroupDetail = () => {
                     {group?.group_members?.map((member) => (
                       <div key={member.profiles?.id} className="flex items-center justify-between p-2 bg-neutral-50 rounded-md">
                         <span>{member.profiles?.display_name}</span>
-                        <span className="text-sm text-neutral-500">Member</span>
+                        <span className="text-sm text-neutral-500">
+                          {member.is_admin ? 'Admin' : 'Member'}
+                        </span>
                       </div>
                     ))}
                   </div>
