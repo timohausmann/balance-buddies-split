@@ -46,51 +46,61 @@ const EditProfile = () => {
     e.preventDefault();
 
     try {
-      // Build the updateUser options object
-      const updateOptions: {
-        email?: string;
-        password?: string;
-        data?: { display_name: string };
-      } = {};
+      // Handle auth-specific updates (email/password)
+      if (email !== session?.user?.email || newPassword) {
+        const authUpdates: {
+          email?: string;
+          password?: string;
+        } = {};
 
-      // Only include changed values
-      if (email !== session?.user?.email) {
-        updateOptions.email = email;
-      }
-
-      if (newPassword) {
-        if (!currentPassword) {
-          toast({
-            title: "Current password required",
-            description: "Please enter your current password to change it.",
-            variant: "destructive",
-          });
-          return;
-        }
-        // Verify current password first
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: session?.user?.email || '',
-          password: currentPassword,
-        });
-
-        if (signInError) {
-          toast({
-            title: "Invalid current password",
-            description: "Please check your current password and try again.",
-            variant: "destructive",
-          });
-          return;
+        if (email !== session?.user?.email) {
+          authUpdates.email = email;
         }
 
-        updateOptions.password = newPassword;
+        if (newPassword) {
+          if (!currentPassword) {
+            toast({
+              title: "Current password required",
+              description: "Please enter your current password to change it.",
+              variant: "destructive",
+            });
+            return;
+          }
+          // Verify current password first
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: session?.user?.email || '',
+            password: currentPassword,
+          });
+
+          if (signInError) {
+            toast({
+              title: "Invalid current password",
+              description: "Please check your current password and try again.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          authUpdates.password = newPassword;
+        }
+
+        // Update auth if needed
+        if (Object.keys(authUpdates).length > 0) {
+          const { error: authError } = await supabase.auth.updateUser(authUpdates);
+          if (authError) throw authError;
+        }
       }
 
-      // Update display name through user metadata to batch it with other changes
-      updateOptions.data = { display_name: displayName };
+      // Update profile display name in database
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ 
+          display_name: displayName,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', session?.user?.id);
 
-      // Make a single updateUser call with all changes
-      const { error: updateError } = await supabase.auth.updateUser(updateOptions);
-      if (updateError) throw updateError;
+      if (profileError) throw profileError;
 
       toast({
         title: "Profile updated",
