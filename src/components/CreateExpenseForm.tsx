@@ -76,6 +76,18 @@ export function CreateExpenseForm({
     enabled: true
   });
 
+  const { data: currencies } = useQuery({
+    queryKey: ['currencies'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('currencies')
+        .select('*');
+
+      return data;
+    },
+    enabled: true
+  });
+
   const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm<FormValues>({
     defaultValues: {
       currency: defaultCurrency,
@@ -186,43 +198,83 @@ export function CreateExpenseForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
-        <BaseSelect
-          label="Group"
-          required
-          value={watch("groupId")}
-          onValueChange={(value) => setValue("groupId", value)}
-          options={groupOptions}
-        />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="title">Title <span className="text-red-500">*</span></Label>
+            <Input
+              id="title"
+              {...register("title", { required: "Title is required" })}
+              placeholder="Dinner at Restaurant"
+            />
+            {errors.title && (
+              <p className="text-sm text-red-500 mt-1">{errors.title.message as string}</p>
+            )}
+          </div>
 
-        <TitleAmountSection
-          register={register}
-          errors={errors}
-          defaultCurrency={selectedGroup?.default_currency || defaultCurrency}
-          watch={watch}
-          setValue={setValue}
-        />
-
-        <div>
-          <Label htmlFor="expenseDate">
-            Date & Time <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            type="datetime-local"
-            id="expenseDate"
-            {...register("expenseDate", { required: "Date is required" })}
+          <BaseSelect
+            label="Group"
+            required
+            value={watch("groupId")}
+            onValueChange={(value) => setValue("groupId", value)}
+            options={groupOptions}
           />
-          {errors.expenseDate && (
-            <p className="text-sm text-red-500 mt-1">{errors.expenseDate.message as string}</p>
-          )}
         </div>
 
-        <BaseSelect
-          label="Paid by"
-          required
-          value={watch("paidByUserId")}
-          onValueChange={(value) => setValue("paidByUserId", value)}
-          options={paidByOptions}
-        />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="amount">Amount <span className="text-red-500">*</span></Label>
+            <Input
+              id="amount"
+              type="number"
+              step="0.01"
+              {...register("amount", { 
+                required: "Amount is required",
+                min: { value: 0.01, message: "Amount must be greater than 0" }
+              })}
+            />
+            {errors.amount && (
+              <p className="text-sm text-red-500 mt-1">{errors.amount.message as string}</p>
+            )}
+          </div>
+
+          <BaseSelect
+            label="Currency"
+            required
+            value={watch("currency")}
+            onValueChange={(value) => setValue("currency", value)}
+            options={[
+              ...currencies.map((curr) => ({
+                value: curr.code,
+                label: `${curr.code} (${curr.symbol}) - ${curr.name}`,
+              })),
+              { value: "other", label: "Other" }
+            ]}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <BaseSelect
+            label="Paid by"
+            required
+            value={watch("paidByUserId")}
+            onValueChange={(value) => setValue("paidByUserId", value)}
+            options={paidByOptions}
+          />
+
+          <div>
+            <Label htmlFor="expenseDate">
+              Date & Time <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              type="datetime-local"
+              id="expenseDate"
+              {...register("expenseDate", { required: "Date is required" })}
+            />
+            {errors.expenseDate && (
+              <p className="text-sm text-red-500 mt-1">{errors.expenseDate.message as string}</p>
+            )}
+          </div>
+        </div>
 
         <ParticipantsSection
           groupMembers={selectedGroup?.group_members || groupMembers}
