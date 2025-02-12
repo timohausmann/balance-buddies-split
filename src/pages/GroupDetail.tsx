@@ -1,14 +1,14 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Edit, Share2, Plus } from "lucide-react";
+import { Users, Edit, UserPlus, Plus, User } from "lucide-react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { EditGroupForm } from "@/components/EditGroupForm";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { User } from "lucide-react";
 import { ExpenseCard } from "@/components/ExpenseCard";
 import { CreateExpenseForm } from "@/components/CreateExpenseForm";
 import { Input } from "@/components/ui/input";
@@ -152,14 +152,22 @@ const GroupDetail = () => {
           </div>
 
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setIsShareOpen(true)}>
-              <Share2 className="mr-2 h-4 w-4" />
-              Share
+            <Button 
+              variant="outline" 
+              onClick={() => setIsShareOpen(true)}
+              className="rounded-full"
+            >
+              <UserPlus className="h-4 w-4" />
+              <span className="ml-2 sm:inline hidden">Invite</span>
             </Button>
             {isAdmin && (
-              <Button variant="outline" onClick={() => setIsEditOpen(true)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
+              <Button 
+                variant="outline" 
+                onClick={() => setIsEditOpen(true)}
+                className="rounded-full"
+              >
+                <Edit className="h-4 w-4" />
+                <span className="ml-2 sm:inline hidden">Edit</span>
               </Button>
             )}
           </div>
