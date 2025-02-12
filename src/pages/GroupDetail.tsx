@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -171,13 +172,22 @@ const GroupDetail = () => {
               </Collapsible>
             )}
 
-            <button
-              onClick={() => setIsMembersOpen(true)}
-              className="flex items-center gap-2 mt-2 text-sm text-neutral-500 hover:text-neutral-700 transition-colors"
-            >
-              <Users className="h-4 w-4" />
-              <span>{group?.group_members?.length || 0} members</span>
-            </button>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {group?.group_members?.map((member) => (
+                <Link
+                  key={member.profiles?.id}
+                  to={`/profile/${member.profiles?.id}`}
+                  className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-50 rounded-full hover:bg-neutral-100 transition-colors"
+                >
+                  <Avatar className="h-5 w-5">
+                    <AvatarFallback className="text-xs bg-neutral-200 text-neutral-500">
+                      {member.profiles?.display_name?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm text-neutral-600">{member.profiles?.display_name}</span>
+                </Link>
+              ))}
+            </div>
           </div>
 
           {isAdmin && (
