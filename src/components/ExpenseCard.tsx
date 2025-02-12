@@ -1,7 +1,8 @@
 
 import { formatDistance } from "date-fns";
-import { DollarSign, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { getCurrencySymbol } from "@/lib/currencies";
+import { CurrencyIcon } from "./ui/currency-icon";
 
 interface ExpenseCardProps {
   title: string;
@@ -31,9 +32,7 @@ export const ExpenseCard = ({
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-xl">
-            <DollarSign className="w-6 h-6 text-primary" />
-          </div>
+          <CurrencyIcon currency={currency} />
           <div>
             <h3 className="font-medium text-lg text-neutral-900">{title}</h3>
             <p className="text-sm text-neutral-500">

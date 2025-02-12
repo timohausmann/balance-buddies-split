@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Group } from "@/components/layout/types";
 import { ChevronRight } from "lucide-react";
 import { getCurrencySymbol } from "@/lib/currencies";
+import { CurrencyIcon } from "./ui/currency-icon";
 
 interface GroupsListProps {
   groups?: Group[];
@@ -19,11 +20,7 @@ export function GroupsList({ groups = [] }: GroupsListProps) {
         >
           <div className="flex justify-between items-start">
             <div className="flex gap-4">
-              <div className="w-10 h-10 bg-primary/10 flex items-center justify-center rounded text-2xl">
-                <span className="text-primary font-medium">
-                  {getCurrencySymbol(group.default_currency)}
-                </span>
-              </div>
+              <CurrencyIcon currency={group.default_currency} />
               <div className="flex-1">
                 <h3 className="text-xl font-semibold">{group.title}</h3>
                 {group.description && (
