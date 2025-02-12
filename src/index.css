@@ -10,10 +10,6 @@
     --radius: 1rem;
   }
 
-  * {
-    @apply border-gray-200;
-  }
-
   body {
     @apply bg-neutral-50 text-neutral-900 antialiased;
   }
