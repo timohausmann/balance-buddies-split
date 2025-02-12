@@ -25,7 +25,7 @@ export function AdditionalDetailsSection({
   const currencyOptions = [
     ...currencies.map((curr) => ({
       value: curr.code,
-      label: `${curr.code} (${curr.symbol}) - ${curr.name}`,
+      label: `${curr.code} (${curr.symbol})`
     })),
     { value: "other", label: "Other" }
   ];
@@ -33,7 +33,7 @@ export function AdditionalDetailsSection({
   return (
     <Accordion.Root type="multiple" className="space-y-2">
       <Accordion.Item value="currency" className="border-b">
-        <Accordion.Trigger className="flex w-full items-center justify-between py-4">
+        <Accordion.Trigger className="flex w-full items-center justify-between py-4 text-sm font-medium">
           <span>Currency</span>
           <ChevronDown className="h-4 w-4 transition-transform duration-200" />
         </Accordion.Trigger>
@@ -47,7 +47,7 @@ export function AdditionalDetailsSection({
       </Accordion.Item>
 
       <Accordion.Item value="date" className="border-b">
-        <Accordion.Trigger className="flex w-full items-center justify-between py-4">
+        <Accordion.Trigger className="flex w-full items-center justify-between py-4 text-sm font-medium">
           <span>Date & Time</span>
           <ChevronDown className="h-4 w-4 transition-transform duration-200" />
         </Accordion.Trigger>
@@ -65,7 +65,7 @@ export function AdditionalDetailsSection({
       </Accordion.Item>
 
       <Accordion.Item value="split" className="border-b">
-        <Accordion.Trigger className="flex w-full items-center justify-between py-4">
+        <Accordion.Trigger className="flex w-full items-center justify-between py-4 text-sm font-medium">
           <span>Split Type</span>
           <ChevronDown className="h-4 w-4 transition-transform duration-200" />
         </Accordion.Trigger>
@@ -75,7 +75,7 @@ export function AdditionalDetailsSection({
       </Accordion.Item>
 
       <Accordion.Item value="description" className="border-b">
-        <Accordion.Trigger className="flex w-full items-center justify-between py-4">
+        <Accordion.Trigger className="flex w-full items-center justify-between py-4 text-sm font-medium">
           <span>Description</span>
           <ChevronDown className="h-4 w-4 transition-transform duration-200" />
         </Accordion.Trigger>

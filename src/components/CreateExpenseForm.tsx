@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
@@ -5,8 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { FormValues, GroupMember } from "./expense/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { TitleGroupRow } from "./expense/TitleGroupRow";
+import { TitleRow } from "./expense/TitleRow";
 import { AmountCurrencyRow } from "./expense/AmountCurrencyRow";
+import { GroupRow } from "./expense/GroupRow";
 import { PaidByDateRow } from "./expense/PaidByDateRow";
 import { ParticipantsSection } from "./expense/ParticipantsSection";
 import { AdditionalDetailsSection } from "./expense/AdditionalDetailsSection";
@@ -248,17 +250,22 @@ export function CreateExpenseForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
-        <TitleGroupRow 
+        <TitleRow 
           register={register}
           errors={errors}
-          watch={watch}
-          setValue={setValue}
-          groupOptions={groupOptions}
         />
 
         <AmountCurrencyRow 
           register={register}
           errors={errors}
+          watch={watch}
+          setValue={setValue}
+        />
+
+        <GroupRow 
+          watch={watch}
+          setValue={setValue}
+          groupOptions={groupOptions}
         />
 
         <ParticipantsSection
