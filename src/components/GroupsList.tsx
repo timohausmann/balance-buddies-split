@@ -25,7 +25,7 @@ export function GroupsList({ groups = [] }: GroupsListProps) {
         >
           <div className="flex justify-between items-start">
             <div className="flex gap-4">
-              <div className="w-10 h-10 bg-primary/10 flex items-center justify-center rounded-lg text-2xl">
+              <div className="w-10 h-10 bg-primary/10 flex items-center justify-center rounded-md text-2xl">
                 <span className="text-primary font-medium">
                   {getCurrencySymbol(group.default_currency)}
                 </span>
