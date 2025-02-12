@@ -6,12 +6,20 @@ import { DescriptionRow } from "./DescriptionRow";
 import { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { FormValues } from "./types";
 import { Input } from "@/components/ui/input";
+import { ParticipantsSection } from "./ParticipantsSection";
 
 interface AdditionalDetailsSectionProps {
   register: UseFormRegister<FormValues>;
   errors: Record<string, any>;
   watch: UseFormWatch<FormValues>;
   setValue: UseFormSetValue<FormValues>;
+  groupMembers: Array<{
+    user_id: string;
+    profiles: {
+      id: string;
+      display_name: string;
+    } | null;
+  }>;
 }
 
 export function AdditionalDetailsSection({
@@ -19,9 +27,24 @@ export function AdditionalDetailsSection({
   errors,
   watch,
   setValue,
+  groupMembers,
 }: AdditionalDetailsSectionProps) {
   return (
     <Accordion.Root type="multiple" className="space-y-2">
+      <Accordion.Item value="participants" className="border-b">
+        <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
+          <span>Participants</span>
+          <ChevronDown className="h-4 w-4 transition-transform duration-200" />
+        </Accordion.Trigger>
+        <Accordion.Content className="pb-4">
+          <ParticipantsSection
+            groupMembers={groupMembers}
+            watch={watch}
+            setValue={setValue}
+          />
+        </Accordion.Content>
+      </Accordion.Item>
+
       <Accordion.Item value="date" className="border-b">
         <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
           <span>Date & Time</span>
@@ -56,7 +79,11 @@ export function AdditionalDetailsSection({
           <ChevronDown className="h-4 w-4 transition-transform duration-200" />
         </Accordion.Trigger>
         <Accordion.Content className="pb-4">
-          <DescriptionRow register={register} />
+          <textarea
+            {...register("description")}
+            placeholder="Add any additional details..."
+            className="w-full min-h-[100px] p-3 border rounded-md"
+          />
         </Accordion.Content>
       </Accordion.Item>
     </Accordion.Root>

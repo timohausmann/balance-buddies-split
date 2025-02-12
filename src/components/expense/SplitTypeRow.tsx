@@ -21,8 +21,6 @@ export function SplitTypeRow({
 
   return (
     <BaseSelect
-      label="Split type"
-      required
       value={watch("spreadType")}
       onValueChange={(value) => setValue("spreadType", value)}
       options={spreadTypeOptions}

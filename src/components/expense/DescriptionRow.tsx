@@ -1,6 +1,4 @@
 
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { UseFormRegister } from "react-hook-form";
 import { FormValues } from "./types";
 
@@ -12,13 +10,10 @@ export function DescriptionRow({
   register,
 }: DescriptionRowProps) {
   return (
-    <div>
-      <Label htmlFor="description">Description</Label>
-      <Textarea
-        id="description"
-        {...register("description")}
-        placeholder="Add any additional details..."
-      />
-    </div>
+    <textarea
+      {...register("description")}
+      placeholder="Add any additional details..."
+      className="w-full min-h-[100px] p-3 border rounded-md"
+    />
   );
 }

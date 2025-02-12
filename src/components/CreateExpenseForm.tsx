@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
@@ -268,12 +267,6 @@ export function CreateExpenseForm({
           groupOptions={groupOptions}
         />
 
-        <ParticipantsSection
-          groupMembers={selectedGroup?.group_members || []}
-          watch={watch}
-          setValue={setValue}
-        />
-
         <PaidByDateRow 
           watch={watch}
           setValue={setValue}
@@ -285,6 +278,7 @@ export function CreateExpenseForm({
           errors={errors}
           watch={watch}
           setValue={setValue}
+          groupMembers={selectedGroup?.group_members || []}
         />
       </div>
 
