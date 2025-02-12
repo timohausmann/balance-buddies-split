@@ -1,0 +1,238 @@
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { FormValues } from "../types";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+interface UseExpenseFormProps {
+  groupId?: string;
+  defaultCurrency: string;
+  onSuccess: () => void;
+  expenseToEdit?: {
+    id: string;
+    title: string;
+    amount: number;
+    currency: string;
+    spread_type: string;
+    description?: string;
+    paid_by_user_id: string;
+    group_id: string;
+    expense_date: string;
+    expense_participants: Array<{
+      user_id: string;
+      share_percentage?: number;
+      share_amount?: number;
+    }>;
+  };
+}
+
+export function useExpenseForm({
+  groupId,
+  defaultCurrency,
+  onSuccess,
+  expenseToEdit
+}: UseExpenseFormProps) {
+  const { toast } = useToast();
+  const [isPending, setIsPending] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user');
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', user.id)
+        .single();
+
+      return {
+        id: user.id,
+        displayName: profile?.display_name || 'Me'
+      };
+    }
+  });
+
+  const { data: userGroups } = useQuery({
+    queryKey: ['user-groups'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user');
+
+      const { data: userGroupIds, error: groupError } = await supabase
+        .from('group_members')
+        .select('group_id')
+        .eq('user_id', user.id);
+
+      if (groupError) throw groupError;
+
+      const { data, error } = await supabase
+        .from('groups')
+        .select(`
+          id,
+          title,
+          default_currency,
+          group_members (
+            user_id,
+            profiles:profiles!group_members_user_id_fkey1 (
+              id,
+              display_name
+            )
+          )
+        `)
+        .in('id', userGroupIds.map(g => g.group_id));
+
+      if (error) throw error;
+      return data?.map(group => ({
+        id: group.id,
+        title: group.title,
+        default_currency: group.default_currency,
+        group_members: group.group_members
+      })) || [];
+    },
+    enabled: true
+  });
+
+  const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm<FormValues>({
+    defaultValues: {
+      title: expenseToEdit?.title || '',
+      amount: expenseToEdit?.amount.toString() || '',
+      currency: expenseToEdit?.currency || defaultCurrency,
+      spreadType: expenseToEdit?.spread_type || 'equal',
+      description: expenseToEdit?.description || '',
+      paidByUserId: expenseToEdit?.paid_by_user_id || '',
+      participantIds: expenseToEdit?.expense_participants.map(p => p.user_id) || [],
+      groupId: expenseToEdit?.group_id || groupId || '',
+      expenseDate: expenseToEdit?.expense_date 
+        ? new Date(expenseToEdit.expense_date).toISOString().slice(0, 16)
+        : new Date().toISOString().slice(0, 16)
+    }
+  });
+
+  const onSubmit = async (data: FormValues) => {
+    try {
+      setIsPending(true);
+
+      if (expenseToEdit) {
+        const { error: expenseError } = await supabase
+          .from('expenses')
+          .update({
+            title: data.title,
+            amount: parseFloat(data.amount),
+            currency: data.currency,
+            spread_type: data.spreadType,
+            description: data.description,
+            paid_by_user_id: data.paidByUserId,
+            group_id: data.groupId,
+            expense_date: new Date(data.expenseDate).toISOString(),
+          })
+          .eq('id', expenseToEdit.id);
+
+        if (expenseError) throw expenseError;
+
+        const { error: deleteError } = await supabase
+          .from('expense_participants')
+          .delete()
+          .eq('expense_id', expenseToEdit.id);
+
+        if (deleteError) throw deleteError;
+
+        const { error: participantsError } = await supabase
+          .from('expense_participants')
+          .insert(
+            data.participantIds.map(userId => ({
+              expense_id: expenseToEdit.id,
+              user_id: userId,
+              share_percentage: data.spreadType === 'equal' 
+                ? 100 / data.participantIds.length 
+                : null
+            }))
+          );
+
+        if (participantsError) throw participantsError;
+
+        toast({
+          title: "Expense updated",
+          description: "Your expense has been updated successfully."
+        });
+      } else {
+        const { data: expense, error: expenseError } = await supabase
+          .from('expenses')
+          .insert({
+            title: data.title,
+            amount: parseFloat(data.amount),
+            currency: data.currency,
+            spread_type: data.spreadType,
+            description: data.description,
+            paid_by_user_id: data.paidByUserId,
+            group_id: data.groupId,
+            expense_date: new Date(data.expenseDate).toISOString(),
+            created_by_user_id: currentUser?.id
+          })
+          .select()
+          .single();
+
+        if (expenseError) throw expenseError;
+
+        const { error: participantsError } = await supabase
+          .from('expense_participants')
+          .insert(
+            data.participantIds.map(userId => ({
+              expense_id: expense.id,
+              user_id: userId,
+              share_percentage: data.spreadType === 'equal' 
+                ? 100 / data.participantIds.length 
+                : null
+            }))
+          );
+
+        if (participantsError) throw participantsError;
+
+        toast({
+          title: "Expense created",
+          description: "Your expense has been recorded successfully."
+        });
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      await queryClient.invalidateQueries({ queryKey: ['recent-expenses'] });
+      await queryClient.invalidateQueries({ queryKey: ['expense', expenseToEdit?.id] });
+
+      onSuccess();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: `Failed to ${expenseToEdit ? 'update' : 'create'} expense. Please try again.`,
+        variant: "destructive"
+      });
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const selectedGroupId = watch("groupId");
+  const selectedGroup = userGroups?.find(g => g.id === selectedGroupId);
+
+  const groupOptions = userGroups?.map(group => ({
+    value: group.id,
+    label: group.title
+  })) || [];
+
+  return {
+    register,
+    handleSubmit,
+    errors,
+    watch,
+    setValue,
+    reset,
+    isPending,
+    selectedGroup,
+    groupOptions,
+    onSubmit,
+    currentUser
+  };
+}
