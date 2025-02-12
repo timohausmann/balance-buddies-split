@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
@@ -109,14 +108,11 @@ export function CreateExpenseForm({
     }
   });
 
-  // Ensure current user is always included in participants
   useEffect(() => {
     if (currentUser?.id) {
       const currentParticipants = watch("participantIds");
       
-      // When editing, don't modify the participants
       if (!expenseToEdit) {
-        // For new expenses, ensure current user is included
         if (!currentParticipants.includes(currentUser.id)) {
           setValue('participantIds', [...currentParticipants, currentUser.id]);
         }
@@ -153,7 +149,6 @@ export function CreateExpenseForm({
       setIsPending(true);
 
       if (expenseToEdit) {
-        // Update existing expense
         const { error: expenseError } = await supabase
           .from('expenses')
           .update({
@@ -170,7 +165,6 @@ export function CreateExpenseForm({
 
         if (expenseError) throw expenseError;
 
-        // Delete existing participants
         const { error: deleteError } = await supabase
           .from('expense_participants')
           .delete()
@@ -178,7 +172,6 @@ export function CreateExpenseForm({
 
         if (deleteError) throw deleteError;
 
-        // Insert new participants
         const { error: participantsError } = await supabase
           .from('expense_participants')
           .insert(
@@ -198,7 +191,6 @@ export function CreateExpenseForm({
           description: "Your expense has been updated successfully."
         });
       } else {
-        // Create new expense
         const { data: expense, error: expenseError } = await supabase
           .from('expenses')
           .insert({
@@ -278,11 +270,9 @@ export function CreateExpenseForm({
         />
 
         <PaidByDateRow 
-          register={register}
-          errors={errors}
           watch={watch}
           setValue={setValue}
-          paidByOptions={paidByOptions}
+          groupMembers={selectedGroup?.group_members || []}
         />
 
         <AdditionalDetailsSection 

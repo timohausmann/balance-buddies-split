@@ -9,7 +9,6 @@ import { SplitTypeRow } from "./SplitTypeRow";
 import { DescriptionRow } from "./DescriptionRow";
 import { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { FormValues } from "./types";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
 interface AdditionalDetailsSectionProps {
@@ -30,21 +29,15 @@ export function AdditionalDetailsSection({
       <AccordionItem value="date">
         <AccordionTrigger>Date & Time</AccordionTrigger>
         <AccordionContent>
-          <div>
-            <Label htmlFor="expenseDate">
-              Date & Time <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              type="datetime-local"
-              id="expenseDate"
-              {...register("expenseDate", { required: "Date is required" })}
-            />
-            {errors.expenseDate && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.expenseDate.message as string}
-              </p>
-            )}
-          </div>
+          <Input
+            type="datetime-local"
+            {...register("expenseDate", { required: "Date is required" })}
+          />
+          {errors.expenseDate && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.expenseDate.message as string}
+            </p>
+          )}
         </AccordionContent>
       </AccordionItem>
 
