@@ -39,29 +39,23 @@ export function ParticipantsSection({
         .single();
 
       return {
-        user_id: user.id,
-        profiles: {
-          id: user.id,
-          display_name: profile?.display_name || 'Me'
-        }
+        id: user.id,
+        displayName: profile?.display_name || 'Unknown'
       };
     }
   });
 
-  // Construct the complete members list with current user always first
-  const allMembers = currentUser
-    ? [
-        currentUser,
-        ...groupMembers.filter(member => member.user_id !== currentUser.user_id)
-      ]
-    : groupMembers;
+  if (!groupMembers.length) {
+    return null;
+  }
 
   return (
     <div>
       <Label>Participants</Label>
       <div className="space-y-2 mt-2">
-        {allMembers.map((member) => {
+        {groupMembers.map((member) => {
           const isParticipant = currentParticipants.includes(member.user_id);
+          const isCurrentUser = member.user_id === currentUser?.id;
           
           return (
             <div
@@ -92,6 +86,7 @@ export function ParticipantsSection({
                 }`}
               >
                 {member.profiles?.display_name}
+                {isCurrentUser && " (Me)"}
               </Label>
             </div>
           );
