@@ -77,16 +77,23 @@ export function CreateExpenseForm({
     enabled: true
   });
 
-  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<FormValues>({
+  const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm<FormValues>({
     defaultValues: {
       currency: defaultCurrency,
       spreadType: 'equal',
-      paidByUserId: currentUser?.id || '',
+      paidByUserId: '',
       participantIds: groupMembers.map(member => member.user_id),
       groupId: groupId || '',
       expenseDate: new Date().toISOString().slice(0, 16)
     }
   });
+
+  // Update paidByUserId when currentUser becomes available
+  useEffect(() => {
+    if (currentUser?.id) {
+      setValue('paidByUserId', currentUser.id);
+    }
+  }, [currentUser, setValue]);
 
   const selectedGroupId = watch("groupId");
   const selectedGroup = userGroups?.find(g => g.id === selectedGroupId);
