@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,6 +70,7 @@ export function EditGroupForm({ group, onSuccess }: EditGroupFormProps) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required 
+          autoFocus={false}
         />
       </div>
       <div className="space-y-2">

@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -9,6 +8,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { EditGroupForm } from "@/components/EditGroupForm";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { User } from "lucide-react";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -73,7 +73,7 @@ const GroupDetail = () => {
                 className="relative"
               >
                 <CollapsibleTrigger className="w-full text-left">
-                  <p className={`text-neutral-500 ${!isDescriptionExpanded ? 'line-clamp-2' : ''} ${!isDescriptionExpanded ? 'after:absolute after:bottom-0 after:left-0 after:right-0 after:h-8 after:bg-gradient-to-t after:from-white after:to-transparent' : ''}`}>
+                  <p className={`text-neutral-500 ${!isDescriptionExpanded ? 'line-clamp-2' : ''} ${!isDescriptionExpanded ? 'after:absolute after:bottom-0 after:left-0 after:right-0 after:h-8 after:bg-gradient-to-t after:from-neutral-50 after:to-transparent' : ''}`}>
                     {group.description}
                   </p>
                 </CollapsibleTrigger>
@@ -114,7 +114,7 @@ const GroupDetail = () => {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center">
-                      <Users className="h-5 w-5 text-neutral-500" />
+                      <User className="h-5 w-5 text-neutral-500" />
                     </div>
                     <span className="font-medium">{member.profiles?.display_name}</span>
                   </div>
@@ -150,7 +150,9 @@ const GroupDetail = () => {
                 <p className="text-sm text-neutral-500">Paid by John</p>
               </div>
               <div className="text-right">
-                <p className="font-semibold">$120.00</p>
+                <p className="text-lg font-semibold text-neutral-900">
+                  $120.00
+                </p>
                 <p className="text-sm text-neutral-500">Split equally</p>
               </div>
             </div>
