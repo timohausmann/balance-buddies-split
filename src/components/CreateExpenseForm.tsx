@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
@@ -70,13 +71,22 @@ export function CreateExpenseForm({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user');
 
+      // First get the groups where the user is a member
+      const { data: userGroupIds, error: groupError } = await supabase
+        .from('group_members')
+        .select('group_id')
+        .eq('user_id', user.id);
+
+      if (groupError) throw groupError;
+
+      // Then fetch full group details including ALL members
       const { data, error } = await supabase
         .from('groups')
         .select(`
           id,
           title,
           default_currency,
-          group_members!inner (
+          group_members (
             user_id,
             profiles:profiles!group_members_user_id_fkey1 (
               id,
@@ -84,7 +94,7 @@ export function CreateExpenseForm({
             )
           )
         `)
-        .eq('group_members.user_id', user.id);
+        .in('id', userGroupIds.map(g => g.group_id));
 
       if (error) throw error;
       return data?.map(group => ({
@@ -133,16 +143,6 @@ export function CreateExpenseForm({
       setValue("currency", selectedGroup.default_currency);
     }
   }, [selectedGroup, setValue, expenseToEdit]);
-
-  const paidByOptions = currentUser ? [
-    { value: currentUser.id, label: `Me (${currentUser.displayName})` },
-    ...(selectedGroup?.group_members || [])
-      .filter(member => member.user_id !== currentUser.id)
-      .map(member => ({
-        value: member.user_id,
-        label: member.profiles?.display_name || 'Unknown'
-      }))
-  ] : [];
 
   const groupOptions = userGroups?.map(group => ({
     value: group.id,
