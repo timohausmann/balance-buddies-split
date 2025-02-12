@@ -136,7 +136,7 @@ const Index = () => {
           {groups && groups.length > 0 && (
             <div>
               <h2 className="text-xl font-semibold mb-4">Your Groups</h2>
-              <GroupsList groups={groups} limit={4} />
+              <GroupsList groups={groups} />
             </div>
           )}
 
