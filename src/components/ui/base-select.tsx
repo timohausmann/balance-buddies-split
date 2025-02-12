@@ -16,6 +16,7 @@ interface BaseSelectProps {
   required?: boolean;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function BaseSelect({
@@ -26,6 +27,7 @@ export function BaseSelect({
   required = false,
   placeholder = "Select an option...",
   className,
+  disabled = false,
 }: BaseSelectProps) {
   return (
     <div className="space-y-2">
@@ -45,6 +47,7 @@ export function BaseSelect({
             className
           )}
           required={required}
+          disabled={disabled}
         >
           {placeholder && (
             <option value="" disabled>
