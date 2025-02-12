@@ -39,7 +39,7 @@ export function PaidByDateRow({
   const options = currentUserId ? [
     {
       value: currentUserId,
-      label: `Me (${groupMembers.find(m => m.user_id === currentUserId)?.profiles?.display_name || 'Me'})`
+      label: groupMembers.find(m => m.user_id === currentUserId)?.profiles?.display_name + " (Me)"
     },
     ...groupMembers
       .filter(member => member.user_id !== currentUserId)

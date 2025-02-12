@@ -71,23 +71,31 @@ export function CreateExpenseForm({
       if (!user) throw new Error('No user');
 
       const { data, error } = await supabase
-        .from('groups')
+        .from('group_members')
         .select(`
-          id,
-          title,
-          default_currency,
-          group_members!inner(
-            user_id,
-            profiles(
-              id,
-              display_name
-            )
+          group: groups (
+            id,
+            title,
+            default_currency
+          ),
+          user_id,
+          profiles!group_members_user_id_fkey1 (
+            id,
+            display_name
           )
         `)
-        .eq('group_members.user_id', user.id);
+        .eq('user_id', user.id);
 
       if (error) throw error;
-      return data;
+      return data?.map(({ group }) => ({
+        id: group.id,
+        title: group.title,
+        default_currency: group.default_currency,
+        group_members: data.map(member => ({
+          user_id: member.user_id,
+          profiles: member.profiles
+        }))
+      })) || [];
     },
     enabled: true
   });
