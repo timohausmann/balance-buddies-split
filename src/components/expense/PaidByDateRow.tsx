@@ -32,10 +32,7 @@ export function PaidByDateRow({
     }
   });
 
-  if (!groupMembers.length) {
-    return null;
-  }
-
+  const selectedGroupId = watch("groupId");
   const options = currentUser ? [
     {
       value: currentUser.id,
@@ -54,6 +51,8 @@ export function PaidByDateRow({
       value={watch("paidByUserId")}
       onValueChange={(value) => setValue("paidByUserId", value)}
       options={options}
+      disabled={!selectedGroupId}
+      placeholder={!selectedGroupId ? "Select a group first" : "Select who paid"}
     />
   );
 }

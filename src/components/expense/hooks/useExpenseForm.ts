@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FormValues } from "../types";
 import { supabase } from "@/integrations/supabase/client";
@@ -113,6 +113,20 @@ export function useExpenseForm({
     }
   });
 
+  const selectedGroupId = watch("groupId");
+  const selectedGroup = userGroups?.find(g => g.id === selectedGroupId);
+
+  // Update currency and participants when group changes
+  useEffect(() => {
+    if (!expenseToEdit && selectedGroup) {
+      setValue("currency", selectedGroup.default_currency);
+      setValue("participantIds", selectedGroup.group_members.map(member => member.user_id));
+      if (!watch("paidByUserId") && currentUser) {
+        setValue("paidByUserId", currentUser.id);
+      }
+    }
+  }, [selectedGroupId, selectedGroup, expenseToEdit, setValue, currentUser]);
+
   const onSubmit = async (data: FormValues) => {
     try {
       setIsPending(true);
@@ -213,9 +227,6 @@ export function useExpenseForm({
       setIsPending(false);
     }
   };
-
-  const selectedGroupId = watch("groupId");
-  const selectedGroup = userGroups?.find(g => g.id === selectedGroupId);
 
   const groupOptions = userGroups?.map(group => ({
     value: group.id,
