@@ -267,8 +267,6 @@ export function CreateExpenseForm({
         <AmountCurrencyRow 
           register={register}
           errors={errors}
-          watch={watch}
-          setValue={setValue}
         />
 
         <ParticipantsSection
