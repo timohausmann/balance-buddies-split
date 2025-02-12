@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -263,12 +264,12 @@ const GroupDetail = () => {
             <TooltipTrigger asChild>
               <button
                 onClick={() => setIsExpenseFormOpen(true)}
-                className="fixed bottom-6 right-6 w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center text-primary hover:bg-gray-50 transition-colors duration-200"
+                className="fixed bottom-6 right-6 w-14 h-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white hover:bg-primary-dark transition-colors duration-200"
               >
                 <Plus className="w-6 h-6" />
               </button>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent className="bg-white px-3 py-1.5 text-sm shadow-md rounded-md border">
               <p>Add expense</p>
             </TooltipContent>
           </Tooltip>
