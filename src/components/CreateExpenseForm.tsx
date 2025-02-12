@@ -11,6 +11,7 @@ import { FormValues, GroupMember } from "./expense/types";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { currencies } from "@/lib/currencies";
 
 interface CreateExpenseFormProps {
   groupId?: string;
@@ -99,7 +100,6 @@ export function CreateExpenseForm({
     }
   });
 
-  // Update paidByUserId and participantIds when currentUser becomes available
   useEffect(() => {
     if (currentUser?.id) {
       setValue('paidByUserId', currentUser.id);
@@ -140,6 +140,14 @@ export function CreateExpenseForm({
     value: group.id,
     label: group.title
   })) || [];
+
+  const currencyOptions = [
+    ...currencies.map((curr) => ({
+      value: curr.code,
+      label: `${curr.code} (${curr.symbol}) - ${curr.name}`,
+    })),
+    { value: "other", label: "Other" }
+  ];
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -242,13 +250,7 @@ export function CreateExpenseForm({
             required
             value={watch("currency")}
             onValueChange={(value) => setValue("currency", value)}
-            options={[
-              ...currencies.map((curr) => ({
-                value: curr.code,
-                label: `${curr.code} (${curr.symbol}) - ${curr.name}`,
-              })),
-              { value: "other", label: "Other" }
-            ]}
+            options={currencyOptions}
           />
         </div>
 
