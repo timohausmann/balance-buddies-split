@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MainLayout } from "@/components/MainLayout";
@@ -8,9 +8,10 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { CreateExpenseForm } from "@/components/CreateExpenseForm";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Trash2, Edit } from "lucide-react";
+import { Trash2, Edit, ChevronLeft } from "lucide-react";
 import { format } from "date-fns";
 import { getCurrencySymbol } from "@/lib/currencies";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const ExpenseDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -115,35 +116,45 @@ const ExpenseDetail = () => {
   return (
     <MainLayout>
       <div className="max-w-2xl mx-auto">
-        <div className="mb-6 flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">{expense.title}</h1>
-            <p className="text-neutral-500">
-              Added by {expense.created_by_profile?.display_name} on{" "}
-              {format(new Date(expense.created_at), "PPP")}
-            </p>
-          </div>
+        <div className="mb-6">
+          <Link 
+            to={`/groups/${expense.group_id}`}
+            className="inline-flex items-center text-sm text-neutral-500 hover:text-neutral-700 mb-4"
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Back to {expense.groups?.title}
+          </Link>
 
-          {isCreator && (
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="rounded-full"
-                onClick={() => setIsEditOpen(true)}
-              >
-                <Edit className="h-4 w-4" />
-                <span className="ml-2 sm:inline hidden">Edit</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="rounded-full"
-                onClick={() => setIsDeleteDialogOpen(true)}
-              >
-                <Trash2 className="h-4 w-4" />
-                <span className="ml-2 sm:inline hidden">Delete</span>
-              </Button>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-1">{expense.title}</h1>
+              <p className="text-sm text-neutral-500">
+                Added by {expense.created_by_profile?.display_name} on{" "}
+                {format(new Date(expense.created_at), "PPP")}
+              </p>
             </div>
-          )}
+
+            {isCreator && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={() => setIsEditOpen(true)}
+                >
+                  <Edit className="h-4 w-4" />
+                  <span className="ml-2 sm:inline hidden">Edit</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span className="ml-2 sm:inline hidden">Delete</span>
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -163,21 +174,42 @@ const ExpenseDetail = () => {
           </div>
 
           <div className="p-4 bg-neutral-50 rounded-lg">
+            <p className="text-sm text-neutral-500 mb-1">Split type</p>
+            <p className="font-medium capitalize">
+              {expense.spread_type}
+            </p>
+          </div>
+
+          <div className="p-4 bg-neutral-50 rounded-lg">
             <p className="text-sm text-neutral-500 mb-2">Participants</p>
-            <div className="space-y-2">
-              {expense.expense_participants.map((participant) => (
-                <div key={participant.user_id} className="flex justify-between">
-                  <span>{participant.participant_profile?.display_name}</span>
-                  <span>
-                    {participant.share_percentage && `${participant.share_percentage}%`}
-                    {participant.share_amount && `${currencySymbol} ${participant.share_amount}`}
-                    {!participant.share_percentage && !participant.share_amount && 
-                      `${currencySymbol} ${(expense.amount / expense.expense_participants.length).toFixed(2)}`
-                    }
-                  </span>
-                </div>
-              ))}
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="text-right">Share</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {expense.expense_participants.map((participant) => (
+                  <TableRow key={participant.user_id}>
+                    <TableCell>{participant.participant_profile?.display_name}</TableCell>
+                    <TableCell className="text-right">
+                      {participant.share_percentage && `${participant.share_percentage}%`}
+                      {!participant.share_percentage && expense.spread_type === 'equal' && 
+                        `${(100 / expense.expense_participants.length).toFixed(1)}%`
+                      }
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {currencySymbol}{" "}
+                      {participant.share_amount?.toFixed(2) || 
+                        (expense.amount / expense.expense_participants.length).toFixed(2)
+                      }
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
 
           {expense.description && (
