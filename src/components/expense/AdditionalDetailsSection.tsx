@@ -6,8 +6,6 @@ import { DescriptionRow } from "./DescriptionRow";
 import { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { FormValues } from "./types";
 import { Input } from "@/components/ui/input";
-import { BaseSelect } from "@/components/ui/base-select";
-import { currencies } from "@/lib/currencies";
 
 interface AdditionalDetailsSectionProps {
   register: UseFormRegister<FormValues>;
@@ -22,32 +20,10 @@ export function AdditionalDetailsSection({
   watch,
   setValue,
 }: AdditionalDetailsSectionProps) {
-  const currencyOptions = [
-    ...currencies.map((curr) => ({
-      value: curr.code,
-      label: `${curr.code} (${curr.symbol})`
-    })),
-    { value: "other", label: "Other" }
-  ];
-
   return (
     <Accordion.Root type="multiple" className="space-y-2">
-      <Accordion.Item value="currency" className="border-b">
-        <Accordion.Trigger className="flex w-full items-center justify-between py-4 text-sm font-medium">
-          <span>Currency</span>
-          <ChevronDown className="h-4 w-4 transition-transform duration-200" />
-        </Accordion.Trigger>
-        <Accordion.Content className="pb-4">
-          <BaseSelect
-            value={watch("currency")}
-            onValueChange={(value) => setValue("currency", value)}
-            options={currencyOptions}
-          />
-        </Accordion.Content>
-      </Accordion.Item>
-
       <Accordion.Item value="date" className="border-b">
-        <Accordion.Trigger className="flex w-full items-center justify-between py-4 text-sm font-medium">
+        <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
           <span>Date & Time</span>
           <ChevronDown className="h-4 w-4 transition-transform duration-200" />
         </Accordion.Trigger>
@@ -65,7 +41,7 @@ export function AdditionalDetailsSection({
       </Accordion.Item>
 
       <Accordion.Item value="split" className="border-b">
-        <Accordion.Trigger className="flex w-full items-center justify-between py-4 text-sm font-medium">
+        <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
           <span>Split Type</span>
           <ChevronDown className="h-4 w-4 transition-transform duration-200" />
         </Accordion.Trigger>
@@ -75,7 +51,7 @@ export function AdditionalDetailsSection({
       </Accordion.Item>
 
       <Accordion.Item value="description" className="border-b">
-        <Accordion.Trigger className="flex w-full items-center justify-between py-4 text-sm font-medium">
+        <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
           <span>Description</span>
           <ChevronDown className="h-4 w-4 transition-transform duration-200" />
         </Accordion.Trigger>
