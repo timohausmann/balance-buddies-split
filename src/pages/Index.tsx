@@ -1,3 +1,4 @@
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { ExpenseCard } from "@/components/ExpenseCard";
@@ -110,13 +111,6 @@ const Index = () => {
     setIsExpenseDialogOpen(true);
   };
 
-  const handleExpenseClick = (id: string) => {
-    toast({
-      title: "Coming soon!",
-      description: "Expense details will be available soon.",
-    });
-  };
-
   const visibleGroups = showAllGroups ? groups : groups?.slice(0, 4);
 
   return (
@@ -134,13 +128,13 @@ const Index = () => {
             {recentExpenses?.map((expense) => (
               <ExpenseCard
                 key={expense.id}
+                id={expense.id}
                 title={expense.title}
                 amount={expense.amount}
                 currency={expense.currency}
                 date={new Date(expense.expense_date)}
                 paidBy={expense.paid_by_profile?.display_name || 'Unknown'}
                 participants={expense.expense_participants.map(p => p.user_id)}
-                onClick={() => handleExpenseClick(expense.id)}
               />
             ))}
           </div>
