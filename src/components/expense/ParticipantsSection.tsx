@@ -5,7 +5,7 @@ import { UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { FormValues } from "./types";
 import { UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 interface ParticipantsSectionProps {
   groupMembers: Array<{
@@ -25,15 +25,16 @@ export function ParticipantsSection({
   setValue,
 }: ParticipantsSectionProps) {
   const currentParticipants = watch("participantIds");
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const getCurrentUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setCurrentUserId(session?.user?.id || null);
-    };
-    getCurrentUser();
-  }, []);
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user');
+      
+      return user;
+    }
+  });
 
   if (!groupMembers.length) {
     return null;
@@ -45,7 +46,7 @@ export function ParticipantsSection({
       <div className="space-y-2 mt-2">
         {groupMembers.map((member) => {
           const isParticipant = currentParticipants.includes(member.user_id);
-          const isCurrentUser = member.user_id === currentUserId;
+          const isCurrentUser = member.user_id === currentUser?.id;
           
           return (
             <div

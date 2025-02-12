@@ -3,7 +3,7 @@ import { BaseSelect } from "@/components/ui/base-select";
 import { UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { FormValues } from "./types";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 interface PaidByDateRowProps {
   watch: UseFormWatch<FormValues>;
@@ -22,27 +22,27 @@ export function PaidByDateRow({
   setValue,
   groupMembers,
 }: PaidByDateRowProps) {
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const getCurrentUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setCurrentUserId(session?.user?.id || null);
-    };
-    getCurrentUser();
-  }, []);
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user');
+      
+      return user;
+    }
+  });
 
   if (!groupMembers.length) {
     return null;
   }
 
-  const options = currentUserId ? [
+  const options = currentUser ? [
     {
-      value: currentUserId,
-      label: groupMembers.find(m => m.user_id === currentUserId)?.profiles?.display_name + " (Me)"
+      value: currentUser.id,
+      label: groupMembers.find(m => m.user_id === currentUser.id)?.profiles?.display_name + " (Me)"
     },
     ...groupMembers
-      .filter(member => member.user_id !== currentUserId)
+      .filter(member => member.user_id !== currentUser.id)
       .map(member => ({
         value: member.user_id,
         label: member.profiles?.display_name || 'Unknown'
