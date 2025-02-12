@@ -63,7 +63,8 @@ export function ParticipantsSection({
               {member.profiles?.display_name}
             </label>
           </div>
-        ))}
+        );
+      })}
     </div>
   );
 }
