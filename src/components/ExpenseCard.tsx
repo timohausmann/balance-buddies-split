@@ -13,6 +13,10 @@ interface ExpenseCardProps {
   onClick?: () => void;
 }
 
+const getCurrencySymbol = (currencyCode: string) => {
+  return currencies.find(c => c.code === currencyCode)?.symbol || currencyCode;
+};
+
 export const ExpenseCard = ({
   title,
   amount,
@@ -22,7 +26,7 @@ export const ExpenseCard = ({
   participants,
   onClick,
 }: ExpenseCardProps) => {
-  const currencySymbol = currencies.find(c => c.code === currency)?.symbol || currency;
+  const currencySymbol = getCurrencySymbol(currency);
 
   return (
     <div

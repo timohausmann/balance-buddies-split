@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -82,18 +81,23 @@ export function CreateExpenseForm({
       currency: defaultCurrency,
       spreadType: 'equal',
       paidByUserId: '',
-      participantIds: groupMembers.map(member => member.user_id),
+      participantIds: [],  // Start with empty array, we'll populate it when we have currentUser
       groupId: groupId || '',
       expenseDate: new Date().toISOString().slice(0, 16)
     }
   });
 
-  // Update paidByUserId when currentUser becomes available
+  // Update paidByUserId and participantIds when currentUser becomes available
   useEffect(() => {
     if (currentUser?.id) {
       setValue('paidByUserId', currentUser.id);
+      // If no participants are set yet, add the current user
+      const currentParticipants = watch("participantIds");
+      if (currentParticipants.length === 0) {
+        setValue('participantIds', [currentUser.id]);
+      }
     }
-  }, [currentUser, setValue]);
+  }, [currentUser, setValue, watch]);
 
   const selectedGroupId = watch("groupId");
   const selectedGroup = userGroups?.find(g => g.id === selectedGroupId);
