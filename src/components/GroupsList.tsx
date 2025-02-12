@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Group } from "@/components/layout/types";
-import { ChevronRight, DollarSign } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { currencies } from "@/lib/currencies";
 
 interface GroupsListProps {
@@ -24,24 +24,24 @@ export function GroupsList({ groups = [] }: GroupsListProps) {
           className="card p-6 space-y-4 hover:scale-[1.02] transition-transform duration-200"
         >
           <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <h3 className="text-xl font-semibold">{group.title}</h3>
-              {group.description && (
-                <div className="relative">
-                  <p className="text-sm text-neutral-500 line-clamp-2 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-8 after:bg-gradient-to-t after:from-white after:to-transparent">
-                    {group.description}
-                  </p>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="bg-primary/10 p-2 rounded-xl">
+            <div className="flex gap-4">
+              <div className="w-10 h-10 bg-primary/10 flex items-center justify-center">
                 <span className="text-primary font-medium">
                   {getCurrencySymbol(group.default_currency)}
                 </span>
               </div>
-              <ChevronRight className="h-5 w-5 text-neutral-400" />
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold">{group.title}</h3>
+                {group.description && (
+                  <div className="relative">
+                    <p className="text-sm text-neutral-500 line-clamp-2 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-8 after:bg-gradient-to-t after:from-white after:to-transparent">
+                      {group.description}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
+            <ChevronRight className="h-5 w-5 text-neutral-400" />
           </div>
           <div className="flex items-center text-sm text-neutral-500">
             <span>{group.group_members?.length || 0} members</span>

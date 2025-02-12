@@ -82,6 +82,7 @@ const Index = () => {
           id,
           title,
           description,
+          default_currency,
           group_members!inner (
             user_id
           )
