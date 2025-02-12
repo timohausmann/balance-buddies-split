@@ -261,24 +261,14 @@ export function CreateExpenseForm({
           setValue={setValue}
         />
 
-        <GroupRow 
-          watch={watch}
-          setValue={setValue}
-          groupOptions={groupOptions}
-        />
-
-        <PaidByDateRow 
-          watch={watch}
-          setValue={setValue}
-          groupMembers={selectedGroup?.group_members || []}
-        />
-
         <AdditionalDetailsSection 
           register={register}
           errors={errors}
           watch={watch}
           setValue={setValue}
           groupMembers={selectedGroup?.group_members || []}
+          groupOptions={groupOptions}
+          defaultOpenGroup={!groupId && !expenseToEdit}
         />
       </div>
 
