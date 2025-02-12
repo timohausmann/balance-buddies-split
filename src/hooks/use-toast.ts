@@ -7,7 +7,7 @@ import type {
 } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 2  // Increased from 1 to 2 to allow stacking
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_REMOVE_DELAY = 3000  // Changed to 3 seconds for better UX
 
 type ToasterToast = ToastProps & {
   id: string
