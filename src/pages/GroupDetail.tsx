@@ -177,7 +177,7 @@ const GroupDetail = () => {
                 <Link
                   key={member.profiles?.id}
                   to={`/profile/${member.profiles?.id}`}
-                  className="inline-flex items-center pl-1 pr-3 py-1 bg-neutral-50 rounded-full hover:bg-neutral-100 transition-colors"
+                  className="inline-flex items-center pl-1 pr-3 py-1 bg-neutral-100 rounded-full hover:bg-neutral-200 transition-colors"
                 >
                   <Avatar className="h-5 w-5">
                     <AvatarFallback className="bg-neutral-200">
