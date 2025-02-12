@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -257,6 +256,7 @@ const GroupDetail = () => {
           {expenses?.map((expense) => (
             <ExpenseCard
               key={expense.id}
+              id={expense.id}
               title={expense.title}
               amount={expense.amount}
               currency={expense.currency}

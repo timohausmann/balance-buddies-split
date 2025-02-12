@@ -10,6 +10,7 @@ import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import Groups from "./pages/Groups";
 import GroupDetail from "./pages/GroupDetail";
+import ExpenseDetail from "./pages/ExpenseDetail";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import EditProfile from "./pages/EditProfile";
@@ -76,6 +77,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <GroupDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/expenses/:id"
+              element={
+                <ProtectedRoute>
+                  <ExpenseDetail />
                 </ProtectedRoute>
               }
             />
