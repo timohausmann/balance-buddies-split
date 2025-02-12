@@ -71,7 +71,7 @@ export function EditGroupForm({ group, onSuccess }: EditGroupFormProps) {
   };
 
   const handleDelete = async () => {
-    const confirmed = window.confirm("Are you sure you want to delete this group? This action cannot be undone.");
+    const confirmed = window.confirm(`Are you sure you want to delete the group "${group.title}"? This action cannot be undone.`);
     
     if (!confirmed) return;
     
