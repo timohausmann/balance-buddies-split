@@ -13,7 +13,7 @@ import { ExpenseCard } from "@/components/ExpenseCard";
 import { CreateExpenseForm } from "@/components/CreateExpenseForm";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@radix-ui/react-tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -263,13 +263,13 @@ const GroupDetail = () => {
             <TooltipTrigger asChild>
               <button
                 onClick={() => setIsExpenseFormOpen(true)}
-                className="fixed bottom-6 right-6 w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center text-primary hover:bg-gray-50 transition-colors duration-200"
+                className="fixed bottom-6 right-6 w-14 h-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white hover:bg-primary-dark transition-colors duration-200"
               >
                 <Plus className="w-6 h-6" />
               </button>
             </TooltipTrigger>
-            <TooltipContent>
-              <p>Add expense</p>
+            <TooltipContent className="bg-white px-3 py-1.5 text-sm shadow-md rounded-md border">
+              Add expense
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
