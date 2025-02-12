@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -157,7 +156,6 @@ export function CreateExpenseForm({
           value={watch("groupId")}
           onValueChange={(value) => setValue("groupId", value)}
           options={groupOptions}
-          disabled={!!groupId}
         />
 
         <TitleAmountSection

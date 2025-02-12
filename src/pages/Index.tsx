@@ -1,3 +1,4 @@
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { ExpenseCard } from "@/components/ExpenseCard";
@@ -169,20 +170,19 @@ const Index = () => {
             </div>
           )}
 
-          <AddExpenseButton onClick={handleAddExpense} />
+          <AddExpenseButton onClick={() => setIsExpenseDialogOpen(true)} />
         </div>
 
         <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
-          <div className="fixed inset-0 bg-black/40" />
+          <div className="fixed inset-0 bg-black/40" aria-hidden="true" onClick={() => setIsExpenseDialogOpen(false)} />
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4">
-              <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
+              <div className="bg-white rounded-lg shadow-lg w-full max-w-md" onClick={(e) => e.stopPropagation()}>
                 <div className="p-6">
                   <h2 className="text-lg font-semibold mb-4">Add Expense</h2>
                   {session && (
                     <CreateExpenseForm
-                      groupId={groups?.[0]?.id || ''}
-                      defaultCurrency={groups?.[0]?.default_currency || 'USD'}
+                      defaultCurrency="USD"
                       groupMembers={[]}
                       onSuccess={() => {
                         setIsExpenseDialogOpen(false);
