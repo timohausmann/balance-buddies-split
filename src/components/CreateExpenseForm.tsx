@@ -110,12 +110,22 @@ export function CreateExpenseForm({
     }
   });
 
+  // Ensure current user is always included in participants
   useEffect(() => {
-    if (currentUser?.id && !expenseToEdit) {
-      setValue('paidByUserId', currentUser.id);
+    if (currentUser?.id) {
       const currentParticipants = watch("participantIds");
-      if (currentParticipants.length === 0) {
-        setValue('participantIds', [currentUser.id]);
+      
+      // When editing, don't modify the participants
+      if (!expenseToEdit) {
+        // For new expenses, ensure current user is included
+        if (!currentParticipants.includes(currentUser.id)) {
+          setValue('participantIds', [...currentParticipants, currentUser.id]);
+        }
+        
+        // Also set paid by if not set
+        if (!watch("paidByUserId")) {
+          setValue('paidByUserId', currentUser.id);
+        }
       }
     }
   }, [currentUser, setValue, watch, expenseToEdit]);
