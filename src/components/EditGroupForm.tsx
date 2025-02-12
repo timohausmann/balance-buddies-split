@@ -71,7 +71,7 @@ export function EditGroupForm({ group, onSuccess }: EditGroupFormProps) {
   };
 
   const handleDelete = async () => {
-    const confirmed = window.confirm(`Are you sure you want to delete the group "${title}"? This action cannot be undone.`);
+    const confirmed = window.confirm("Are you sure you want to delete this group? This action cannot be undone.");
     
     if (!confirmed) return;
     
@@ -144,25 +144,19 @@ export function EditGroupForm({ group, onSuccess }: EditGroupFormProps) {
           </div>
         )}
       </div>
-      <div className="flex gap-6 mt-6">
-        <Button 
-          type="button" 
-          variant="outline" 
-          size="sm"
-          onClick={handleDelete}
-          disabled={isSubmitting}
-          className="text-red-500 hover:text-red-600 hover:bg-red-50"
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete
+      <div className="flex flex-col gap-2">
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? "Saving..." : "Save Changes"}
         </Button>
         <Button 
-          type="submit" 
-          size="lg"
-          className="flex-1" 
+          type="button" 
+          variant="destructive" 
+          className="w-full"
+          onClick={handleDelete}
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Saving..." : "Save Changes"}
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete Group
         </Button>
       </div>
     </form>
