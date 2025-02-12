@@ -20,6 +20,7 @@ export default {
     },
     extend: {
       colors: {
+        border: "#e2e8f0",    // Using a neutral gray for borders
         primary: {
           DEFAULT: "#9b87f5",
           light: "#b8a8f8",
