@@ -18,13 +18,30 @@ interface CreateExpenseFormProps {
   groupMembers: GroupMember[];
   defaultCurrency: string;
   onSuccess: () => void;
+  expenseToEdit?: {
+    id: string;
+    title: string;
+    amount: number;
+    currency: string;
+    spread_type: string;
+    description?: string;
+    paid_by_user_id: string;
+    group_id: string;
+    expense_date: string;
+    expense_participants: Array<{
+      user_id: string;
+      share_percentage?: number;
+      share_amount?: number;
+    }>;
+  };
 }
 
 export function CreateExpenseForm({ 
   groupId, 
   groupMembers, 
   defaultCurrency, 
-  onSuccess 
+  onSuccess,
+  expenseToEdit
 }: CreateExpenseFormProps) {
   const { toast } = useToast();
   const [isPending, setIsPending] = useState(false);
@@ -79,33 +96,38 @@ export function CreateExpenseForm({
 
   const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm<FormValues>({
     defaultValues: {
-      currency: defaultCurrency,
-      spreadType: 'equal',
-      paidByUserId: '',
-      participantIds: [],
-      groupId: groupId || '',
-      expenseDate: new Date().toISOString().slice(0, 16)
+      title: expenseToEdit?.title || '',
+      amount: expenseToEdit?.amount.toString() || '',
+      currency: expenseToEdit?.currency || defaultCurrency,
+      spreadType: expenseToEdit?.spread_type || 'equal',
+      description: expenseToEdit?.description || '',
+      paidByUserId: expenseToEdit?.paid_by_user_id || '',
+      participantIds: expenseToEdit?.expense_participants.map(p => p.user_id) || [],
+      groupId: expenseToEdit?.group_id || groupId || '',
+      expenseDate: expenseToEdit?.expense_date 
+        ? new Date(expenseToEdit.expense_date).toISOString().slice(0, 16)
+        : new Date().toISOString().slice(0, 16)
     }
   });
 
   useEffect(() => {
-    if (currentUser?.id) {
+    if (currentUser?.id && !expenseToEdit) {
       setValue('paidByUserId', currentUser.id);
       const currentParticipants = watch("participantIds");
       if (currentParticipants.length === 0) {
         setValue('participantIds', [currentUser.id]);
       }
     }
-  }, [currentUser, setValue, watch]);
+  }, [currentUser, setValue, watch, expenseToEdit]);
 
   const selectedGroupId = watch("groupId");
   const selectedGroup = userGroups?.find(g => g.id === selectedGroupId);
 
   useEffect(() => {
-    if (selectedGroup) {
+    if (selectedGroup && !expenseToEdit) {
       setValue("currency", selectedGroup.default_currency);
     }
-  }, [selectedGroup, setValue]);
+  }, [selectedGroup, setValue, expenseToEdit]);
 
   const paidByOptions = currentUser ? [
     { value: currentUser.id, label: `Me (${currentUser.displayName})` },
@@ -125,50 +147,101 @@ export function CreateExpenseForm({
   const onSubmit = async (data: FormValues) => {
     try {
       setIsPending(true);
-      const { data: expense, error: expenseError } = await supabase
-        .from('expenses')
-        .insert({
-          title: data.title,
-          amount: parseFloat(data.amount),
-          currency: data.currency,
-          spread_type: data.spreadType,
-          description: data.description,
-          paid_by_user_id: data.paidByUserId,
-          group_id: data.groupId,
-          expense_date: new Date(data.expenseDate).toISOString(),
-          created_by_user_id: currentUser?.id
-        })
-        .select()
-        .single();
 
-      if (expenseError) throw expenseError;
+      if (expenseToEdit) {
+        // Update existing expense
+        const { error: expenseError } = await supabase
+          .from('expenses')
+          .update({
+            title: data.title,
+            amount: parseFloat(data.amount),
+            currency: data.currency,
+            spread_type: data.spreadType,
+            description: data.description,
+            paid_by_user_id: data.paidByUserId,
+            group_id: data.groupId,
+            expense_date: new Date(data.expenseDate).toISOString(),
+          })
+          .eq('id', expenseToEdit.id);
 
-      const { error: participantsError } = await supabase
-        .from('expense_participants')
-        .insert(
-          data.participantIds.map(userId => ({
-            expense_id: expense.id,
-            user_id: userId,
-            share_percentage: data.spreadType === 'equal' 
-              ? 100 / data.participantIds.length 
-              : null
-          }))
-        );
+        if (expenseError) throw expenseError;
 
-      if (participantsError) throw participantsError;
+        // Delete existing participants
+        const { error: deleteError } = await supabase
+          .from('expense_participants')
+          .delete()
+          .eq('expense_id', expenseToEdit.id);
+
+        if (deleteError) throw deleteError;
+
+        // Insert new participants
+        const { error: participantsError } = await supabase
+          .from('expense_participants')
+          .insert(
+            data.participantIds.map(userId => ({
+              expense_id: expenseToEdit.id,
+              user_id: userId,
+              share_percentage: data.spreadType === 'equal' 
+                ? 100 / data.participantIds.length 
+                : null
+            }))
+          );
+
+        if (participantsError) throw participantsError;
+
+        toast({
+          title: "Expense updated",
+          description: "Your expense has been updated successfully."
+        });
+      } else {
+        // Create new expense
+        const { data: expense, error: expenseError } = await supabase
+          .from('expenses')
+          .insert({
+            title: data.title,
+            amount: parseFloat(data.amount),
+            currency: data.currency,
+            spread_type: data.spreadType,
+            description: data.description,
+            paid_by_user_id: data.paidByUserId,
+            group_id: data.groupId,
+            expense_date: new Date(data.expenseDate).toISOString(),
+            created_by_user_id: currentUser?.id
+          })
+          .select()
+          .single();
+
+        if (expenseError) throw expenseError;
+
+        const { error: participantsError } = await supabase
+          .from('expense_participants')
+          .insert(
+            data.participantIds.map(userId => ({
+              expense_id: expense.id,
+              user_id: userId,
+              share_percentage: data.spreadType === 'equal' 
+                ? 100 / data.participantIds.length 
+                : null
+            }))
+          );
+
+        if (participantsError) throw participantsError;
+
+        toast({
+          title: "Expense created",
+          description: "Your expense has been recorded successfully."
+        });
+      }
 
       await queryClient.invalidateQueries({ queryKey: ['expenses'] });
       await queryClient.invalidateQueries({ queryKey: ['recent-expenses'] });
+      await queryClient.invalidateQueries({ queryKey: ['expense', expenseToEdit?.id] });
 
-      toast({
-        title: "Expense created",
-        description: "Your expense has been recorded successfully."
-      });
       onSuccess();
     } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to create expense. Please try again.",
+        description: `Failed to ${expenseToEdit ? 'update' : 'create'} expense. Please try again.`,
         variant: "destructive"
       });
     } finally {
@@ -219,7 +292,7 @@ export function CreateExpenseForm({
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "Creating..." : "Create Expense"}
+        {isPending ? (expenseToEdit ? "Saving..." : "Creating...") : (expenseToEdit ? "Save Changes" : "Create Expense")}
       </Button>
     </form>
   );

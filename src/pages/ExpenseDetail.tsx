@@ -230,6 +230,7 @@ const ExpenseDetail = () => {
               groupMembers={expense.groups?.group_members || []}
               defaultCurrency={expense.groups?.default_currency || 'EUR'}
               onSuccess={handleEditSuccess}
+              expenseToEdit={expense}
             />
           </DialogContent>
         </Dialog>
