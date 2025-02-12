@@ -1,39 +1,29 @@
 
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Switch } from "./ui/switch";
 import { BaseSelect } from "./ui/base-select";
+import { TitleAmountSection } from "./expense/TitleAmountSection";
+import { ParticipantsSection } from "./expense/ParticipantsSection";
+import { FormValues, GroupMember } from "./expense/types";
+import { Label } from "./ui/label";
 
 interface CreateExpenseFormProps {
   groupId: string;
-  groupMembers: Array<{
-    user_id: string;
-    profiles: {
-      id: string;
-      display_name: string;
-    } | null;
-  }>;
+  groupMembers: GroupMember[];
   defaultCurrency: string;
   onSuccess: () => void;
 }
 
-interface FormValues {
-  title: string;
-  amount: string;
-  currency: string;
-  spreadType: string;
-  description?: string;
-  paidByUserId: string;
-  participantIds: string[];
-}
-
-export function CreateExpenseForm({ groupId, groupMembers, defaultCurrency, onSuccess }: CreateExpenseFormProps) {
+export function CreateExpenseForm({ 
+  groupId, 
+  groupMembers, 
+  defaultCurrency, 
+  onSuccess 
+}: CreateExpenseFormProps) {
   const { toast } = useToast();
   const [isPending, setIsPending] = useState(false);
 
@@ -110,45 +100,13 @@ export function CreateExpenseForm({ groupId, groupMembers, defaultCurrency, onSu
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
-        <div>
-          <Label htmlFor="title">Title <span className="text-red-500">*</span></Label>
-          <Input
-            id="title"
-            {...register("title", { required: "Title is required" })}
-            placeholder="Dinner at Restaurant"
-          />
-          {errors.title && (
-            <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="amount">Amount <span className="text-red-500">*</span></Label>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              {...register("amount", { 
-                required: "Amount is required",
-                min: { value: 0.01, message: "Amount must be greater than 0" }
-              })}
-            />
-            {errors.amount && (
-              <p className="text-sm text-red-500 mt-1">{errors.amount.message}</p>
-            )}
-          </div>
-
-          <BaseSelect
-            label="Currency"
-            required
-            value={watch("currency")}
-            onValueChange={(value) => setValue("currency", value)}
-            options={[
-              { value: defaultCurrency, label: defaultCurrency }
-            ]}
-          />
-        </div>
+        <TitleAmountSection
+          register={register}
+          errors={errors}
+          defaultCurrency={defaultCurrency}
+          watch={watch}
+          setValue={setValue}
+        />
 
         <BaseSelect
           label="Paid by"
@@ -158,31 +116,11 @@ export function CreateExpenseForm({ groupId, groupMembers, defaultCurrency, onSu
           options={paidByOptions}
         />
 
-        <div>
-          <Label>Participants</Label>
-          <div className="space-y-2 mt-2">
-            {groupMembers.map((member) => (
-              <div key={member.user_id} className="flex items-center space-x-2">
-                <Switch
-                  id={`participant-${member.user_id}`}
-                  defaultChecked
-                  onCheckedChange={(checked) => {
-                    const currentParticipants = watch("participantIds");
-                    setValue(
-                      "participantIds",
-                      checked
-                        ? [...currentParticipants, member.user_id]
-                        : currentParticipants.filter(id => id !== member.user_id)
-                    );
-                  }}
-                />
-                <Label htmlFor={`participant-${member.user_id}`}>
-                  {member.profiles?.display_name}
-                </Label>
-              </div>
-            ))}
-          </div>
-        </div>
+        <ParticipantsSection
+          groupMembers={groupMembers}
+          watch={watch}
+          setValue={setValue}
+        />
 
         <BaseSelect
           label="Split type"
