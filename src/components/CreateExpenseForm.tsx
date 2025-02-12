@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -28,6 +29,25 @@ export function CreateExpenseForm({
   const { toast } = useToast();
   const [isPending, setIsPending] = useState(false);
   const queryClient = useQueryClient();
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user');
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', user.id)
+        .single();
+
+      return {
+        id: user.id,
+        displayName: profile?.display_name || 'Me'
+      };
+    }
+  });
 
   const { data: userGroups } = useQuery({
     queryKey: ['user-groups'],
@@ -61,7 +81,7 @@ export function CreateExpenseForm({
     defaultValues: {
       currency: defaultCurrency,
       spreadType: 'equal',
-      paidByUserId: groupMembers[0]?.user_id || '',
+      paidByUserId: currentUser?.id || '',
       participantIds: groupMembers.map(member => member.user_id),
       groupId: groupId || '',
       expenseDate: new Date().toISOString().slice(0, 16)
@@ -83,10 +103,15 @@ export function CreateExpenseForm({
     { value: 'amount', label: 'Fixed amount' }
   ];
 
-  const paidByOptions = (selectedGroup?.group_members || []).map(member => ({
-    value: member.user_id,
-    label: member.profiles?.display_name || 'Unknown'
-  }));
+  const paidByOptions = currentUser ? [
+    { value: currentUser.id, label: `Me (${currentUser.displayName})` },
+    ...(selectedGroup?.group_members || [])
+      .filter(member => member.user_id !== currentUser.id)
+      .map(member => ({
+        value: member.user_id,
+        label: member.profiles?.display_name || 'Unknown'
+      }))
+  ] : [];
 
   const groupOptions = userGroups?.map(group => ({
     value: group.id,
@@ -107,7 +132,7 @@ export function CreateExpenseForm({
           paid_by_user_id: data.paidByUserId,
           group_id: data.groupId,
           expense_date: new Date(data.expenseDate).toISOString(),
-          created_by_user_id: (await supabase.auth.getUser()).data.user?.id
+          created_by_user_id: currentUser?.id
         })
         .select()
         .single();
