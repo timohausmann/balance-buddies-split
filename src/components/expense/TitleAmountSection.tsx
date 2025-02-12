@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { BaseSelect } from "@/components/ui/base-select";
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { FormValues } from "./types";
+import { currencies } from "@/lib/currencies";
 
 interface TitleAmountSectionProps {
   register: UseFormRegister<FormValues>;
@@ -20,6 +21,14 @@ export function TitleAmountSection({
   watch,
   setValue,
 }: TitleAmountSectionProps) {
+  const currencyOptions = [
+    ...currencies.map((curr) => ({
+      value: curr.code,
+      label: `${curr.code} (${curr.symbol}) - ${curr.name}`,
+    })),
+    { value: "other", label: "Other" }
+  ];
+
   return (
     <>
       <div>
@@ -56,9 +65,7 @@ export function TitleAmountSection({
           required
           value={watch("currency")}
           onValueChange={(value) => setValue("currency", value)}
-          options={[
-            { value: defaultCurrency, label: defaultCurrency }
-          ]}
+          options={currencyOptions}
         />
       </div>
     </>
