@@ -5,11 +5,13 @@
 
 @layer base {
   :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
     --radius: 1rem;
   }
 
   * {
-    @apply border-neutral-200;
+    @apply border-gray-200;
   }
 
   body {
