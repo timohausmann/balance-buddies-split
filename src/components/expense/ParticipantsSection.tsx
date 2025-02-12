@@ -4,6 +4,8 @@ import { Switch } from "@/components/ui/switch";
 import { UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { FormValues } from "./types";
 import { UserRound } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ParticipantsSectionProps {
   groupMembers: Array<{
@@ -24,11 +26,41 @@ export function ParticipantsSection({
 }: ParticipantsSectionProps) {
   const currentParticipants = watch("participantIds");
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user');
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', user.id)
+        .single();
+
+      return {
+        user_id: user.id,
+        profiles: {
+          id: user.id,
+          display_name: profile?.display_name || 'Me'
+        }
+      };
+    }
+  });
+
+  // Construct the complete members list with current user always first
+  const allMembers = currentUser
+    ? [
+        currentUser,
+        ...groupMembers.filter(member => member.user_id !== currentUser.user_id)
+      ]
+    : groupMembers;
+
   return (
     <div>
       <Label>Participants</Label>
       <div className="space-y-2 mt-2">
-        {groupMembers.map((member) => {
+        {allMembers.map((member) => {
           const isParticipant = currentParticipants.includes(member.user_id);
           
           return (
