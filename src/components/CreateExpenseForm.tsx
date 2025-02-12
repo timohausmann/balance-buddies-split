@@ -10,8 +10,7 @@ import { TitleGroupRow } from "./expense/TitleGroupRow";
 import { AmountCurrencyRow } from "./expense/AmountCurrencyRow";
 import { PaidByDateRow } from "./expense/PaidByDateRow";
 import { ParticipantsSection } from "./expense/ParticipantsSection";
-import { SplitTypeRow } from "./expense/SplitTypeRow";
-import { DescriptionRow } from "./expense/DescriptionRow";
+import { AdditionalDetailsSection } from "./expense/AdditionalDetailsSection";
 
 interface CreateExpenseFormProps {
   groupId?: string;
@@ -120,11 +119,6 @@ export function CreateExpenseForm({
         // For new expenses, ensure current user is included
         if (!currentParticipants.includes(currentUser.id)) {
           setValue('participantIds', [...currentParticipants, currentUser.id]);
-        }
-        
-        // Also set paid by if not set
-        if (!watch("paidByUserId")) {
-          setValue('paidByUserId', currentUser.id);
         }
       }
     }
@@ -277,6 +271,12 @@ export function CreateExpenseForm({
           setValue={setValue}
         />
 
+        <ParticipantsSection
+          groupMembers={selectedGroup?.group_members || []}
+          watch={watch}
+          setValue={setValue}
+        />
+
         <PaidByDateRow 
           register={register}
           errors={errors}
@@ -285,19 +285,11 @@ export function CreateExpenseForm({
           paidByOptions={paidByOptions}
         />
 
-        <ParticipantsSection
-          groupMembers={selectedGroup?.group_members || groupMembers}
-          watch={watch}
-          setValue={setValue}
-        />
-
-        <SplitTypeRow 
-          watch={watch}
-          setValue={setValue}
-        />
-
-        <DescriptionRow 
+        <AdditionalDetailsSection 
           register={register}
+          errors={errors}
+          watch={watch}
+          setValue={setValue}
         />
       </div>
 
