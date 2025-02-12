@@ -5,6 +5,7 @@ import { BaseSelect } from "@/components/ui/base-select";
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { FormValues } from "./types";
 import { currencies } from "@/lib/currencies";
+import { useState } from "react";
 
 interface TitleAmountSectionProps {
   register: UseFormRegister<FormValues>;
@@ -21,6 +22,9 @@ export function TitleAmountSection({
   watch,
   setValue,
 }: TitleAmountSectionProps) {
+  const [customCurrency, setCustomCurrency] = useState("");
+  const selectedCurrency = watch("currency");
+
   const currencyOptions = [
     ...currencies.map((curr) => ({
       value: curr.code,
@@ -60,13 +64,32 @@ export function TitleAmountSection({
           )}
         </div>
 
-        <BaseSelect
-          label="Currency"
-          required
-          value={watch("currency")}
-          onValueChange={(value) => setValue("currency", value)}
-          options={currencyOptions}
-        />
+        <div className="space-y-2">
+          <BaseSelect
+            label="Currency"
+            required
+            value={watch("currency")}
+            onValueChange={(value) => {
+              setValue("currency", value);
+              if (value === "other") {
+                setValue("currency", customCurrency);
+              }
+            }}
+            options={currencyOptions}
+          />
+          {selectedCurrency === "other" && (
+            <Input
+              placeholder="Enter currency code (e.g. THB)"
+              value={customCurrency}
+              onChange={(e) => {
+                const value = e.target.value.slice(0, 24);
+                setCustomCurrency(value);
+                setValue("currency", value);
+              }}
+              required
+            />
+          )}
+        </div>
       </div>
     </>
   );
