@@ -1,28 +1,20 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Edit, UserPlus, Plus, User, Trash2 } from "lucide-react";
-import { useParams, Link } from "react-router-dom";
+import { Plus } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { EditGroupForm } from "@/components/EditGroupForm";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ExpenseCard } from "@/components/ExpenseCard";
-import { CreateExpenseForm } from "@/components/CreateExpenseForm";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useNavigate } from "react-router-dom";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { GroupHeader } from "@/components/group/GroupHeader";
+import { GroupDialogs } from "@/components/group/GroupDialogs";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const [isMembersOpen, setIsMembersOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
@@ -151,170 +143,31 @@ const GroupDetail = () => {
   return (
     <MainLayout>
       <div className="max-w-2xl mx-auto">
-        <header className="flex justify-between items-start mb-8">
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-neutral-900 mb-2">{group?.title}</h1>
-            
-            {group?.description && (
-              <Collapsible
-                open={isDescriptionExpanded}
-                onOpenChange={setIsDescriptionExpanded}
-                className="relative"
-              >
-                <CollapsibleTrigger className="w-full text-left">
-                  <p className={`text-neutral-500 ${!isDescriptionExpanded ? 'line-clamp-2' : ''} ${!isDescriptionExpanded ? 'after:absolute after:bottom-0 after:left-0 after:right-0 after:h-8 after:bg-gradient-to-t after:from-neutral-50 after:to-transparent' : ''}`}>
-                    {group.description}
-                  </p>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <p className="text-neutral-500">{group.description}</p>
-                </CollapsibleContent>
-              </Collapsible>
-            )}
+        {group && (
+          <GroupHeader
+            group={group}
+            isAdmin={isAdmin}
+            onEditClick={() => setIsEditOpen(true)}
+            onShareClick={() => setIsShareOpen(true)}
+            onDeleteClick={() => setIsDeleteDialogOpen(true)}
+          />
+        )}
 
-            <div className="flex flex-wrap gap-2 mt-2">
-              {group?.group_members?.map((member) => (
-                <Link
-                  key={member.profiles?.id}
-                  to={`/profile/${member.profiles?.id}`}
-                  className="inline-flex items-center pl-1 pr-3 py-1 bg-neutral-100 rounded-full hover:bg-neutral-200 transition-colors"
-                >
-                  <Avatar className="h-5 w-5">
-                    <AvatarFallback className="bg-neutral-200">
-                      <User className="h-3 w-3 text-neutral-500" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm text-neutral-600 ml-2">{member.profiles?.display_name}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {isAdmin && (
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={() => setIsShareOpen(true)}
-                className="rounded-full"
-              >
-                <UserPlus className="h-4 w-4" />
-                <span className="ml-2 sm:inline hidden">Invite</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setIsEditOpen(true)}
-                className="rounded-full"
-              >
-                <Edit className="h-4 w-4" />
-                <span className="ml-2 sm:inline hidden">Edit</span>
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => setIsDeleteDialogOpen(true)}
-                className="rounded-full"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span className="ml-2 sm:inline hidden">Delete</span>
-              </Button>
-            </div>
-          )}
-        </header>
-
-        <Dialog open={isMembersOpen} onOpenChange={setIsMembersOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Group Members</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3">
-              {group?.group_members?.map((member) => (
-                <Link
-                  key={member.profiles?.id}
-                  to={`/profile/${member.profiles?.id}`}
-                  className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center">
-                      <User className="h-5 w-5 text-neutral-500" />
-                    </div>
-                    <span className="font-medium">{member.profiles?.display_name}</span>
-                  </div>
-                  <span className="text-sm text-neutral-500">
-                    {member.is_admin ? 'Admin' : 'Member'}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Group</DialogTitle>
-            </DialogHeader>
-            {group && (
-              <EditGroupForm
-                group={group}
-                onSuccess={handleEditSuccess}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={isShareOpen} onOpenChange={setIsShareOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Share Group</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <p className="text-sm text-neutral-500">
-                Share this link with friends to invite them to join the group:
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  readOnly
-                  value={`${window.location.origin}/invite/${id}`}
-                  onClick={(e) => e.currentTarget.select()}
-                />
-                <Button onClick={copyInviteLink}>
-                  Copy
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the group
-                and all associated expenses.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        <Dialog open={isExpenseFormOpen} onOpenChange={setIsExpenseFormOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Expense</DialogTitle>
-            </DialogHeader>
-            {group && (
-              <CreateExpenseForm
-                groupId={group.id}
-                groupMembers={group.group_members}
-                defaultCurrency={group.default_currency}
-                onSuccess={handleExpenseSuccess}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
+        <GroupDialogs
+          group={group}
+          isEditOpen={isEditOpen}
+          setIsEditOpen={setIsEditOpen}
+          isShareOpen={isShareOpen}
+          setIsShareOpen={setIsShareOpen}
+          isExpenseFormOpen={isExpenseFormOpen}
+          setIsExpenseFormOpen={setIsExpenseFormOpen}
+          isDeleteDialogOpen={isDeleteDialogOpen}
+          setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+          onEditSuccess={handleEditSuccess}
+          onExpenseSuccess={handleExpenseSuccess}
+          onDeleteConfirm={handleDelete}
+          onCopyInviteLink={copyInviteLink}
+        />
 
         <div className="space-y-4">
           {expenses?.length === 0 ? (
