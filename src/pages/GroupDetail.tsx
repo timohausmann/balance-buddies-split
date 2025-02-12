@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -14,6 +13,7 @@ import { ExpenseCard } from "@/components/ExpenseCard";
 import { CreateExpenseForm } from "@/components/CreateExpenseForm";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@radix-ui/react-tooltip";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -258,12 +258,21 @@ const GroupDetail = () => {
           ))}
         </div>
 
-        <button
-          onClick={() => setIsExpenseFormOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white hover:bg-primary-dark transition-colors duration-200"
-        >
-          <Plus className="w-6 h-6" />
-        </button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setIsExpenseFormOpen(true)}
+                className="fixed bottom-6 right-6 w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center text-primary hover:bg-gray-50 transition-colors duration-200"
+              >
+                <Plus className="w-6 h-6" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Add expense</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </MainLayout>
   );

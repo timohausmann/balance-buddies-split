@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { currencies } from "@/lib/currencies";
-import { Checkbox } from "./ui/checkbox";
+import { CurrencySelect } from "./ui/currency-select";
+import { Switch } from "./ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 interface CreateExpenseFormProps {
   groupId: string;
@@ -42,6 +43,7 @@ export function CreateExpenseForm({ groupId, groupMembers, defaultCurrency, onSu
     defaultValues: {
       currency: defaultCurrency,
       spreadType: 'equal',
+      paidByUserId: groupMembers[0]?.user_id || '',
       participantIds: groupMembers.map(member => member.user_id)
     }
   });
@@ -66,7 +68,6 @@ export function CreateExpenseForm({ groupId, groupMembers, defaultCurrency, onSu
 
       if (expenseError) throw expenseError;
 
-      // Create expense participants
       const { error: participantsError } = await supabase
         .from('expense_participants')
         .insert(
@@ -131,28 +132,17 @@ export function CreateExpenseForm({ groupId, groupMembers, defaultCurrency, onSu
 
           <div>
             <Label htmlFor="currency">Currency <span className="text-red-500">*</span></Label>
-            <Select
+            <CurrencySelect
               defaultValue={defaultCurrency}
               onValueChange={(value) => setValue("currency", value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {currencies.map((currency) => (
-                  <SelectItem key={currency.code} value={currency.code}>
-                    {currency.symbol} {currency.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
         </div>
 
         <div>
           <Label htmlFor="paidByUserId">Paid by <span className="text-red-500">*</span></Label>
           <Select
-            defaultValue={groupMembers[0]?.user_id}
+            value={watch("paidByUserId")}
             onValueChange={(value) => setValue("paidByUserId", value)}
           >
             <SelectTrigger>
@@ -173,7 +163,7 @@ export function CreateExpenseForm({ groupId, groupMembers, defaultCurrency, onSu
           <div className="space-y-2 mt-2">
             {groupMembers.map((member) => (
               <div key={member.user_id} className="flex items-center space-x-2">
-                <Checkbox
+                <Switch
                   id={`participant-${member.user_id}`}
                   defaultChecked
                   onCheckedChange={(checked) => {
