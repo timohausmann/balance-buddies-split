@@ -177,14 +177,14 @@ const GroupDetail = () => {
                 <Link
                   key={member.profiles?.id}
                   to={`/profile/${member.profiles?.id}`}
-                  className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-50 rounded-full hover:bg-neutral-100 transition-colors"
+                  className="inline-flex items-center pl-1 pr-3 py-1 bg-neutral-50 rounded-full hover:bg-neutral-100 transition-colors"
                 >
                   <Avatar className="h-5 w-5">
-                    <AvatarFallback className="text-xs bg-neutral-200 text-neutral-500">
-                      {member.profiles?.display_name?.charAt(0).toUpperCase()}
+                    <AvatarFallback className="bg-neutral-200">
+                      <User className="h-3 w-3 text-neutral-500" />
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm text-neutral-600">{member.profiles?.display_name}</span>
+                  <span className="text-sm text-neutral-600 ml-2">{member.profiles?.display_name}</span>
                 </Link>
               ))}
             </div>
