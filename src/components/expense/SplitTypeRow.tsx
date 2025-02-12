@@ -14,8 +14,9 @@ export function SplitTypeRow({
 }: SplitTypeRowProps) {
   const spreadTypeOptions = [
     { value: 'equal', label: 'Equal split' },
-    { value: 'percentage', label: 'Percentage' },
-    { value: 'amount', label: 'Fixed amount' }
+    // Temporarily disabled options:
+    // { value: 'percentage', label: 'Percentage' },
+    // { value: 'amount', label: 'Fixed amount' }
   ];
 
   return (
