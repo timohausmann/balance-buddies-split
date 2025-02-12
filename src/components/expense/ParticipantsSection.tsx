@@ -5,6 +5,7 @@ import { UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { FormValues } from "./types";
 import { UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 interface ParticipantsSectionProps {
   groupMembers: Array<{
@@ -24,8 +25,15 @@ export function ParticipantsSection({
   setValue,
 }: ParticipantsSectionProps) {
   const currentParticipants = watch("participantIds");
-  const { data: { session } } = await supabase.auth.getSession();
-  const currentUserId = session?.user?.id;
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setCurrentUserId(session?.user?.id || null);
+    };
+    getCurrentUser();
+  }, []);
 
   if (!groupMembers.length) {
     return null;
