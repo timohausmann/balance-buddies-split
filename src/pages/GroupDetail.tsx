@@ -1,7 +1,8 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Edit } from "lucide-react";
+import { Users, Edit, Share2, Plus } from "lucide-react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -9,12 +10,19 @@ import { Button } from "@/components/ui/button";
 import { EditGroupForm } from "@/components/EditGroupForm";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { User } from "lucide-react";
+import { ExpenseCard } from "@/components/ExpenseCard";
+import { CreateExpenseForm } from "@/components/CreateExpenseForm";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const { toast } = useToast();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isMembersOpen, setIsMembersOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
 
   const { data: group, refetch } = useQuery({
     queryKey: ['group', id],
@@ -27,6 +35,7 @@ const GroupDetail = () => {
           *,
           group_members (
             is_admin,
+            user_id,
             profiles (
               id,
               display_name
@@ -35,6 +44,34 @@ const GroupDetail = () => {
         `)
         .eq('id', id)
         .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id
+  });
+
+  const { data: expenses } = useQuery({
+    queryKey: ['expenses', id],
+    queryFn: async () => {
+      if (!id) throw new Error('No group ID provided');
+      
+      const { data, error } = await supabase
+        .from('expenses')
+        .select(`
+          *,
+          profiles!expenses_paid_by_user_id_fkey (
+            display_name
+          ),
+          expense_participants (
+            user_id,
+            profiles (
+              display_name
+            )
+          )
+        `)
+        .eq('group_id', id)
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data;
@@ -51,12 +88,34 @@ const GroupDetail = () => {
   });
 
   const isAdmin = group?.group_members?.some(
-    member => member.profiles?.id === currentUser?.id && member.is_admin
+    member => member.user_id === currentUser?.id && member.is_admin
   );
 
   const handleEditSuccess = () => {
     setIsEditOpen(false);
     refetch();
+  };
+
+  const handleExpenseSuccess = () => {
+    setIsExpenseFormOpen(false);
+    refetch();
+  };
+
+  const copyInviteLink = async () => {
+    const inviteUrl = `${window.location.origin}/invite/${id}`;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      toast({
+        title: "Link copied!",
+        description: "The invite link has been copied to your clipboard."
+      });
+    } catch (err) {
+      toast({
+        title: "Failed to copy",
+        description: "Please try copying the link manually.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -92,12 +151,18 @@ const GroupDetail = () => {
             </button>
           </div>
 
-          {isAdmin && (
-            <Button variant="outline" onClick={() => setIsEditOpen(true)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsShareOpen(true)}>
+              <Share2 className="mr-2 h-4 w-4" />
+              Share
             </Button>
-          )}
+            {isAdmin && (
+              <Button variant="outline" onClick={() => setIsEditOpen(true)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
+            )}
+          </div>
         </header>
 
         <Dialog open={isMembersOpen} onOpenChange={setIsMembersOpen}>
@@ -141,23 +206,64 @@ const GroupDetail = () => {
           </DialogContent>
         </Dialog>
 
-        <div className="space-y-4">
-          {/* Placeholder for expense cards */}
-          <div className="card p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-semibold">Dinner at Restaurant</h3>
-                <p className="text-sm text-neutral-500">Paid by John</p>
-              </div>
-              <div className="text-right">
-                <p className="text-lg font-semibold text-neutral-900">
-                  $120.00
-                </p>
-                <p className="text-sm text-neutral-500">Split equally</p>
+        <Dialog open={isShareOpen} onOpenChange={setIsShareOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Share Group</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-neutral-500">
+                Share this link with friends to invite them to join the group:
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  readOnly
+                  value={`${window.location.origin}/invite/${id}`}
+                  onClick={(e) => e.currentTarget.select()}
+                />
+                <Button onClick={copyInviteLink}>
+                  Copy
+                </Button>
               </div>
             </div>
-          </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isExpenseFormOpen} onOpenChange={setIsExpenseFormOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Expense</DialogTitle>
+            </DialogHeader>
+            {group && (
+              <CreateExpenseForm
+                groupId={group.id}
+                groupMembers={group.group_members}
+                defaultCurrency={group.default_currency}
+                onSuccess={handleExpenseSuccess}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
+        <div className="space-y-4">
+          {expenses?.map((expense) => (
+            <ExpenseCard
+              key={expense.id}
+              title={expense.title}
+              amount={expense.amount}
+              date={new Date(expense.created_at)}
+              paidBy={expense.profiles?.display_name || 'Unknown'}
+              participants={expense.expense_participants.map(p => p.profiles?.display_name || 'Unknown')}
+            />
+          ))}
         </div>
+
+        <button
+          onClick={() => setIsExpenseFormOpen(true)}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white hover:bg-primary-dark transition-colors duration-200"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
       </div>
     </MainLayout>
   );
