@@ -24,6 +24,8 @@ export function AmountCurrencyRow({
     label: `${curr.code} (${curr.symbol})`
   }));
 
+  const currentCurrency = watch('currency');
+
   return (
     <div className="grid grid-cols-2 gap-4">
       <div>
@@ -47,7 +49,7 @@ export function AmountCurrencyRow({
         <BaseSelect
           label="Currency"
           required
-          value={watch("currency")}
+          value={currentCurrency}
           onValueChange={(value) => setValue("currency", value)}
           options={currencyOptions}
         />
