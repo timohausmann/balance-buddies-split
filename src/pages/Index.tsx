@@ -1,4 +1,3 @@
-
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { ExpenseCard } from "@/components/ExpenseCard";
@@ -66,7 +65,9 @@ const Index = () => {
           currency,
           expense_date,
           paid_by_user_id,
-          paid_by_profile:profiles!expenses_paid_by_user_id_fkey(display_name),
+          paid_by_profile:profiles!expenses_paid_by_user_id_fkey1 (
+            display_name
+          ),
           group_id,
           groups!inner(title),
           expense_participants!inner(user_id)

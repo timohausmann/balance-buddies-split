@@ -251,6 +251,7 @@ const GroupDetail = () => {
               key={expense.id}
               title={expense.title}
               amount={expense.amount}
+              currency={expense.currency}
               date={new Date(expense.created_at)}
               paidBy={expense.paid_by_profile?.display_name || 'Unknown'}
               participants={expense.expense_participants.map(p => p.participant_profile?.display_name || 'Unknown')}
