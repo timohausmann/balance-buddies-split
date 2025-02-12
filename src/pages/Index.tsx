@@ -126,7 +126,7 @@ const Index = () => {
           <h1 className="text-3xl font-bold text-neutral-900 mb-2">
             {profile?.display_name ? `Hello, ${profile.display_name}` : "Hello!"}
           </h1>
-          <p className="text-neutral-500">Recent expenses</p>
+          <h2 className="text-xl font-semibold text-neutral-900">Recent expenses</h2>
         </header>
 
         <div className="space-y-8">

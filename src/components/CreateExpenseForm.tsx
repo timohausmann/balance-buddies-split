@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { useForm } from "react-hook-form";
@@ -11,7 +11,7 @@ import { ParticipantsSection } from "./expense/ParticipantsSection";
 import { FormValues, GroupMember } from "./expense/types";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface CreateExpenseFormProps {
   groupId?: string;
@@ -28,6 +28,7 @@ export function CreateExpenseForm({
 }: CreateExpenseFormProps) {
   const { toast } = useToast();
   const [isPending, setIsPending] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: userGroups } = useQuery({
     queryKey: ['user-groups'],
@@ -41,14 +42,20 @@ export function CreateExpenseForm({
           id,
           title,
           default_currency,
-          group_members!inner(user_id)
+          group_members!inner(
+            user_id,
+            profiles(
+              id,
+              display_name
+            )
+          )
         `)
         .eq('group_members.user_id', user.id);
 
       if (error) throw error;
       return data;
     },
-    enabled: !groupId
+    enabled: true
   });
 
   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<FormValues>({
@@ -62,13 +69,22 @@ export function CreateExpenseForm({
     }
   });
 
+  const selectedGroupId = watch("groupId");
+  const selectedGroup = userGroups?.find(g => g.id === selectedGroupId);
+
+  useEffect(() => {
+    if (selectedGroup) {
+      setValue("currency", selectedGroup.default_currency);
+    }
+  }, [selectedGroup, setValue]);
+
   const spreadTypeOptions = [
     { value: 'equal', label: 'Equal split' },
     { value: 'percentage', label: 'Percentage' },
     { value: 'amount', label: 'Fixed amount' }
   ];
 
-  const paidByOptions = groupMembers.map(member => ({
+  const paidByOptions = (selectedGroup?.group_members || []).map(member => ({
     value: member.user_id,
     label: member.profiles?.display_name || 'Unknown'
   }));
@@ -113,6 +129,9 @@ export function CreateExpenseForm({
 
       if (participantsError) throw participantsError;
 
+      await queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      await queryClient.invalidateQueries({ queryKey: ['recent-expenses'] });
+
       toast({
         title: "Expense created",
         description: "Your expense has been recorded successfully."
@@ -132,20 +151,19 @@ export function CreateExpenseForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
-        {!groupId && (
-          <BaseSelect
-            label="Group"
-            required
-            value={watch("groupId")}
-            onValueChange={(value) => setValue("groupId", value)}
-            options={groupOptions}
-          />
-        )}
+        <BaseSelect
+          label="Group"
+          required
+          value={watch("groupId")}
+          onValueChange={(value) => setValue("groupId", value)}
+          options={groupOptions}
+          disabled={!!groupId}
+        />
 
         <TitleAmountSection
           register={register}
           errors={errors}
-          defaultCurrency={defaultCurrency}
+          defaultCurrency={selectedGroup?.default_currency || defaultCurrency}
           watch={watch}
           setValue={setValue}
         />
@@ -173,7 +191,7 @@ export function CreateExpenseForm({
         />
 
         <ParticipantsSection
-          groupMembers={groupMembers}
+          groupMembers={selectedGroup?.group_members || groupMembers}
           watch={watch}
           setValue={setValue}
         />

@@ -43,7 +43,7 @@ export const ExpenseCard = ({
         </div>
         <div className="text-right">
           <p className="text-lg font-semibold text-neutral-900">
-            {currencySymbol}{amount.toFixed(2)}
+            {currencySymbol} {amount.toFixed(2)}
           </p>
           <p className="text-sm text-neutral-500">Paid by {paidBy}</p>
         </div>
