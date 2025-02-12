@@ -52,7 +52,7 @@ export function PaidByDateRow({
       onValueChange={(value) => setValue("paidByUserId", value)}
       options={options}
       disabled={!selectedGroupId}
-      placeholder={!selectedGroupId ? "Select a group first" : "Select who paid"}
+      placeholder={!selectedGroupId ? "Select Group first" : "Select who paid"}
     />
   );
 }
