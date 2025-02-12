@@ -60,12 +60,12 @@ const GroupDetail = () => {
         .from('expenses')
         .select(`
           *,
-          profiles!expenses_paid_by_user_id_fkey (
+          paid_by_profile:profiles!expenses_paid_by_user_id_fkey (
             display_name
           ),
           expense_participants (
             user_id,
-            profiles (
+            participant_profile:profiles!expense_participants_user_id_fkey (
               display_name
             )
           )
@@ -252,8 +252,8 @@ const GroupDetail = () => {
               title={expense.title}
               amount={expense.amount}
               date={new Date(expense.created_at)}
-              paidBy={expense.profiles?.display_name || 'Unknown'}
-              participants={expense.expense_participants.map(p => p.profiles?.display_name || 'Unknown')}
+              paidBy={expense.paid_by_profile?.display_name || 'Unknown'}
+              participants={expense.expense_participants.map(p => p.participant_profile?.display_name || 'Unknown')}
             />
           ))}
         </div>
