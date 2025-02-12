@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
@@ -123,26 +122,19 @@ export function CreateExpenseForm({
     }
   });
 
-  useEffect(() => {
-    if (currentUser?.id) {
-      const currentParticipants = watch("participantIds");
-      
-      if (!expenseToEdit) {
-        if (!currentParticipants.includes(currentUser.id)) {
-          setValue('participantIds', [...currentParticipants, currentUser.id]);
-        }
-      }
-    }
-  }, [currentUser, setValue, watch, expenseToEdit]);
-
-  const selectedGroupId = watch("groupId");
-  const selectedGroup = userGroups?.find(g => g.id === selectedGroupId);
-
+  // Replace the current user useEffect with this new one for group changes
   useEffect(() => {
     if (selectedGroup && !expenseToEdit) {
+      // Set all group members as participants by default
+      setValue('participantIds', selectedGroup.group_members.map(member => member.user_id));
       setValue("currency", selectedGroup.default_currency);
+      
+      // Set the current user as the one who paid by default
+      if (currentUser?.id && !watch("paidByUserId")) {
+        setValue("paidByUserId", currentUser.id);
+      }
     }
-  }, [selectedGroup, setValue, expenseToEdit]);
+  }, [selectedGroup, setValue, currentUser, expenseToEdit, watch]);
 
   const groupOptions = userGroups?.map(group => ({
     value: group.id,
