@@ -2,19 +2,13 @@
 import { Link } from "react-router-dom";
 import { Group } from "@/components/layout/types";
 import { ChevronRight } from "lucide-react";
-import { currencies } from "@/lib/currencies";
+import { getCurrencySymbol } from "@/lib/currencies";
 
 interface GroupsListProps {
   groups?: Group[];
 }
 
 export function GroupsList({ groups = [] }: GroupsListProps) {
-  const getCurrencySymbol = (currencyCode: string) => {
-    if (currencyCode === 'other') return '$';
-    const currency = currencies.find(c => c.code === currencyCode);
-    return currency?.symbol || '$';
-  };
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {groups.map((group) => (

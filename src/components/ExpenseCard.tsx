@@ -1,7 +1,7 @@
 
 import { formatDistance } from "date-fns";
 import { DollarSign, Users } from "lucide-react";
-import { currencies } from "@/lib/currencies";
+import { getCurrencySymbol } from "@/lib/currencies";
 
 interface ExpenseCardProps {
   title: string;
@@ -12,10 +12,6 @@ interface ExpenseCardProps {
   participants: string[];
   onClick?: () => void;
 }
-
-const getCurrencySymbol = (currencyCode: string) => {
-  return currencies.find(c => c.code === currencyCode)?.symbol || currencyCode;
-};
 
 export const ExpenseCard = ({
   title,

@@ -23,3 +23,9 @@ export const currencies: Currency[] = [
   { code: 'RUB', symbol: '₽', name: 'Russian Ruble' },
   { code: 'ZAR', symbol: 'R', name: 'South African Rand' }
 ];
+
+export const getCurrencySymbol = (currencyCode: string): string => {
+  if (!currencyCode) return '?';
+  const currency = currencies.find(c => c.code === currencyCode);
+  return currency?.symbol || '?';
+};
