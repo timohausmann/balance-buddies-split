@@ -34,7 +34,9 @@ export function ParticipantsSection({
           return (
             <div
               key={member.user_id}
-              className="flex items-center space-x-3 p-2 bg-neutral-50 rounded-lg transition-colors"
+              className={`flex items-center space-x-3 p-2 rounded-lg transition-all ${
+                isParticipant ? "bg-neutral-50" : "bg-neutral-50/50"
+              }`}
             >
               <Switch
                 id={`participant-${member.user_id}`}
@@ -48,11 +50,13 @@ export function ParticipantsSection({
                   );
                 }}
               />
-              <UserRound className="h-5 w-5 text-neutral-500" />
+              <UserRound className={`h-5 w-5 transition-colors ${
+                isParticipant ? "text-neutral-500" : "text-neutral-300"
+              }`} />
               <Label
                 htmlFor={`participant-${member.user_id}`}
                 className={`cursor-pointer transition-opacity ${
-                  isParticipant ? "opacity-100" : "opacity-50"
+                  isParticipant ? "opacity-100" : "opacity-40"
                 }`}
               >
                 {member.profiles?.display_name}
