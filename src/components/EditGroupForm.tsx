@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { BaseSelect } from "@/components/ui/base-select";
 import { useNavigate } from "react-router-dom";
-import { Trash2 } from "lucide-react";
 
 interface EditGroupFormProps {
   group: {
@@ -27,7 +26,6 @@ export function EditGroupForm({ group, onSuccess }: EditGroupFormProps) {
   const [currency, setCurrency] = useState(group.default_currency);
   const [customCurrency, setCustomCurrency] = useState("");
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const currencyOptions = [
     ...currencies.map((curr) => ({
@@ -66,36 +64,6 @@ export function EditGroupForm({ group, onSuccess }: EditGroupFormProps) {
         variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    const confirmed = window.confirm(`Are you sure you want to delete the group "${group.title}"? This action cannot be undone.`);
-    
-    if (!confirmed) return;
-    
-    setIsSubmitting(true);
-    try {
-      const { error } = await supabase
-        .from('groups')
-        .delete()
-        .eq('id', group.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Group deleted successfully",
-      });
-
-      navigate('/groups');
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
       setIsSubmitting(false);
     }
   };
@@ -144,21 +112,9 @@ export function EditGroupForm({ group, onSuccess }: EditGroupFormProps) {
           </div>
         )}
       </div>
-      <div className="flex flex-col gap-2">
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save Changes"}
-        </Button>
-        <Button 
-          type="button" 
-          variant="destructive" 
-          className="w-full"
-          onClick={handleDelete}
-          disabled={isSubmitting}
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete Group
-        </Button>
-      </div>
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? "Saving..." : "Save Changes"}
+      </Button>
     </form>
   );
 }

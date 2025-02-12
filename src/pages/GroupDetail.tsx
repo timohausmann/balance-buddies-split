@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Edit, UserPlus, Plus, User } from "lucide-react";
+import { Users, Edit, UserPlus, Plus, User, Trash2 } from "lucide-react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -13,15 +13,19 @@ import { CreateExpenseForm } from "@/components/CreateExpenseForm";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useNavigate } from "react-router-dom";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isMembersOpen, setIsMembersOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const { data: group, refetch } = useQuery({
     queryKey: ['group', id],
@@ -90,6 +94,32 @@ const GroupDetail = () => {
     member => member.user_id === currentUser?.id && member.is_admin
   );
 
+  const handleDelete = async () => {
+    if (!id) return;
+
+    try {
+      const { error } = await supabase
+        .from('groups')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Group deleted",
+        description: "The group has been deleted successfully."
+      });
+
+      navigate('/groups');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to delete group. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleEditSuccess = () => {
     setIsEditOpen(false);
     refetch();
@@ -150,16 +180,16 @@ const GroupDetail = () => {
             </button>
           </div>
 
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsShareOpen(true)}
-              className="rounded-full"
-            >
-              <UserPlus className="h-4 w-4" />
-              <span className="ml-2 sm:inline hidden">Invite</span>
-            </Button>
-            {isAdmin && (
+          {isAdmin && (
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsShareOpen(true)}
+                className="rounded-full"
+              >
+                <UserPlus className="h-4 w-4" />
+                <span className="ml-2 sm:inline hidden">Invite</span>
+              </Button>
               <Button 
                 variant="outline" 
                 onClick={() => setIsEditOpen(true)}
@@ -168,8 +198,16 @@ const GroupDetail = () => {
                 <Edit className="h-4 w-4" />
                 <span className="ml-2 sm:inline hidden">Edit</span>
               </Button>
-            )}
-          </div>
+              <Button 
+                variant="outline"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                className="rounded-full"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="ml-2 sm:inline hidden">Delete</span>
+              </Button>
+            </div>
+          )}
         </header>
 
         <Dialog open={isMembersOpen} onOpenChange={setIsMembersOpen}>
@@ -235,6 +273,22 @@ const GroupDetail = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the group
+                and all associated expenses.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         <Dialog open={isExpenseFormOpen} onOpenChange={setIsExpenseFormOpen}>
           <DialogContent>
