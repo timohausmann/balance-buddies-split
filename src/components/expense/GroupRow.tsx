@@ -16,8 +16,6 @@ export function GroupRow({
 }: GroupRowProps) {
   return (
     <BaseSelect
-      label="Group"
-      required
       value={watch("groupId")}
       onValueChange={(value) => setValue("groupId", value)}
       options={groupOptions}

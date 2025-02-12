@@ -39,7 +39,7 @@ export function AdditionalDetailsSection({
     <Accordion.Root 
       type="multiple" 
       className="space-y-2"
-      defaultValue={defaultOpenGroup ? ['group'] : []}
+      defaultValue={defaultOpenGroup ? ['group', 'paidBy'] : ['paidBy']}
     >
       <Accordion.Item value="group" className="border-b">
         <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">

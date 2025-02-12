@@ -51,7 +51,6 @@ export function PaidByDateRow({
 
   return (
     <BaseSelect
-      label="Paid by"
       value={watch("paidByUserId")}
       onValueChange={(value) => setValue("paidByUserId", value)}
       options={options}
