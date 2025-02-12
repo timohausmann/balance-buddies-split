@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -129,17 +128,19 @@ const ExpenseDetail = () => {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                size="icon"
+                className="rounded-full"
                 onClick={() => setIsEditOpen(true)}
               >
                 <Edit className="h-4 w-4" />
+                <span className="ml-2 sm:inline hidden">Edit</span>
               </Button>
               <Button
                 variant="outline"
-                size="icon"
+                className="rounded-full"
                 onClick={() => setIsDeleteDialogOpen(true)}
               >
                 <Trash2 className="h-4 w-4" />
+                <span className="ml-2 sm:inline hidden">Delete</span>
               </Button>
             </div>
           )}
