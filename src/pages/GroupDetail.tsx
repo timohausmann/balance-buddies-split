@@ -60,12 +60,12 @@ const GroupDetail = () => {
         .from('expenses')
         .select(`
           *,
-          paid_by_profile:profiles!expenses_paid_by_user_id_fkey (
+          paid_by_profile:profiles!expenses_paid_by_user_id_fkey1 (
             display_name
           ),
           expense_participants (
             user_id,
-            participant_profile:profiles!expense_participants_user_id_fkey (
+            participant_profile:profiles!expense_participants_user_id_fkey1 (
               display_name
             )
           )
