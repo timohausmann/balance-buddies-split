@@ -1,10 +1,12 @@
 
 import { formatDistance } from "date-fns";
 import { DollarSign, Users } from "lucide-react";
+import { currencies } from "@/lib/currencies";
 
 interface ExpenseCardProps {
   title: string;
   amount: number;
+  currency: string;
   date: Date;
   paidBy: string;
   participants: string[];
@@ -14,11 +16,14 @@ interface ExpenseCardProps {
 export const ExpenseCard = ({
   title,
   amount,
+  currency,
   date,
   paidBy,
   participants,
   onClick,
 }: ExpenseCardProps) => {
+  const currencySymbol = currencies.find(c => c.code === currency)?.symbol || currency;
+
   return (
     <div
       onClick={onClick}
@@ -38,7 +43,7 @@ export const ExpenseCard = ({
         </div>
         <div className="text-right">
           <p className="text-lg font-semibold text-neutral-900">
-            ${amount.toFixed(2)}
+            {currencySymbol}{amount.toFixed(2)}
           </p>
           <p className="text-sm text-neutral-500">Paid by {paidBy}</p>
         </div>

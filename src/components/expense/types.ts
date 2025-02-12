@@ -7,6 +7,8 @@ export interface FormValues {
   description?: string;
   paidByUserId: string;
   participantIds: string[];
+  groupId: string;
+  expenseDate: string;
 }
 
 export interface GroupMember {

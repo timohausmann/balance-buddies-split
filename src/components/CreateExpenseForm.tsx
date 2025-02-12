@@ -10,9 +10,11 @@ import { TitleAmountSection } from "./expense/TitleAmountSection";
 import { ParticipantsSection } from "./expense/ParticipantsSection";
 import { FormValues, GroupMember } from "./expense/types";
 import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { useQuery } from "@tanstack/react-query";
 
 interface CreateExpenseFormProps {
-  groupId: string;
+  groupId?: string;
   groupMembers: GroupMember[];
   defaultCurrency: string;
   onSuccess: () => void;
@@ -27,12 +29,36 @@ export function CreateExpenseForm({
   const { toast } = useToast();
   const [isPending, setIsPending] = useState(false);
 
+  const { data: userGroups } = useQuery({
+    queryKey: ['user-groups'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user');
+
+      const { data, error } = await supabase
+        .from('groups')
+        .select(`
+          id,
+          title,
+          default_currency,
+          group_members!inner(user_id)
+        `)
+        .eq('group_members.user_id', user.id);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !groupId
+  });
+
   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<FormValues>({
     defaultValues: {
       currency: defaultCurrency,
       spreadType: 'equal',
       paidByUserId: groupMembers[0]?.user_id || '',
-      participantIds: groupMembers.map(member => member.user_id)
+      participantIds: groupMembers.map(member => member.user_id),
+      groupId: groupId || '',
+      expenseDate: new Date().toISOString().slice(0, 16)
     }
   });
 
@@ -47,6 +73,11 @@ export function CreateExpenseForm({
     label: member.profiles?.display_name || 'Unknown'
   }));
 
+  const groupOptions = userGroups?.map(group => ({
+    value: group.id,
+    label: group.title
+  })) || [];
+
   const onSubmit = async (data: FormValues) => {
     try {
       setIsPending(true);
@@ -59,7 +90,8 @@ export function CreateExpenseForm({
           spread_type: data.spreadType,
           description: data.description,
           paid_by_user_id: data.paidByUserId,
-          group_id: groupId,
+          group_id: data.groupId,
+          expense_date: new Date(data.expenseDate).toISOString(),
           created_by_user_id: (await supabase.auth.getUser()).data.user?.id
         })
         .select()
@@ -100,6 +132,16 @@ export function CreateExpenseForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
+        {!groupId && (
+          <BaseSelect
+            label="Group"
+            required
+            value={watch("groupId")}
+            onValueChange={(value) => setValue("groupId", value)}
+            options={groupOptions}
+          />
+        )}
+
         <TitleAmountSection
           register={register}
           errors={errors}
@@ -107,6 +149,20 @@ export function CreateExpenseForm({
           watch={watch}
           setValue={setValue}
         />
+
+        <div>
+          <Label htmlFor="expenseDate">
+            Date & Time <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            type="datetime-local"
+            id="expenseDate"
+            {...register("expenseDate", { required: "Date is required" })}
+          />
+          {errors.expenseDate && (
+            <p className="text-sm text-red-500 mt-1">{errors.expenseDate.message as string}</p>
+          )}
+        </div>
 
         <BaseSelect
           label="Paid by"

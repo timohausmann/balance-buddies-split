@@ -1,14 +1,22 @@
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { ExpenseCard } from "@/components/ExpenseCard";
 import { AddExpenseButton } from "@/components/AddExpenseButton";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { GroupsList } from "@/components/GroupsList";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { Dialog } from "@/components/ui/dialog";
+import { CreateExpenseForm } from "@/components/CreateExpenseForm";
 
 const Index = () => {
   const { toast } = useToast();
+  const [showAllGroups, setShowAllGroups] = useState(false);
+  const [isExpenseDialogOpen, setIsExpenseDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -55,8 +63,10 @@ const Index = () => {
           id,
           title,
           amount,
+          currency,
           expense_date,
           paid_by_user_id,
+          paid_by_profile:profiles!expenses_paid_by_user_id_fkey(display_name),
           group_id,
           groups!inner(title),
           expense_participants!inner(user_id)
@@ -87,7 +97,7 @@ const Index = () => {
             user_id
           )
         `)
-        .limit(4);
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data;
@@ -96,10 +106,7 @@ const Index = () => {
   });
 
   const handleAddExpense = () => {
-    toast({
-      title: "Coming soon!",
-      description: "Add expense functionality will be available soon.",
-    });
+    setIsExpenseDialogOpen(true);
   };
 
   const handleExpenseClick = (id: string) => {
@@ -109,6 +116,8 @@ const Index = () => {
     });
   };
 
+  const visibleGroups = showAllGroups ? groups : groups?.slice(0, 4);
+
   return (
     <MainLayout>
       <div className="max-w-2xl mx-auto">
@@ -116,7 +125,7 @@ const Index = () => {
           <h1 className="text-3xl font-bold text-neutral-900 mb-2">
             {profile?.display_name ? `Hello, ${profile.display_name}` : "Hello!"}
           </h1>
-          <p className="text-neutral-500">Here are your recent expenses</p>
+          <p className="text-neutral-500">Recent expenses</p>
         </header>
 
         <div className="space-y-8">
@@ -126,8 +135,9 @@ const Index = () => {
                 key={expense.id}
                 title={expense.title}
                 amount={expense.amount}
+                currency={expense.currency}
                 date={new Date(expense.expense_date)}
-                paidBy={expense.paid_by_user_id}
+                paidBy={expense.paid_by_profile?.display_name || 'Unknown'}
                 participants={expense.expense_participants.map(p => p.user_id)}
                 onClick={() => handleExpenseClick(expense.id)}
               />
@@ -137,12 +147,53 @@ const Index = () => {
           {groups && groups.length > 0 && (
             <div>
               <h2 className="text-xl font-semibold mb-4">Your Groups</h2>
-              <GroupsList groups={groups} />
+              <GroupsList groups={visibleGroups || []} />
+              {groups.length > 4 && (
+                <Button
+                  variant="ghost"
+                  className="w-full mt-4"
+                  onClick={() => setShowAllGroups(!showAllGroups)}
+                >
+                  {showAllGroups ? (
+                    <>
+                      Show less <ChevronUp className="ml-2 h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      Show more <ChevronDown className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           )}
 
           <AddExpenseButton onClick={handleAddExpense} />
         </div>
+
+        <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
+          <div className="fixed inset-0 bg-black/40" />
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
+                <div className="p-6">
+                  <h2 className="text-lg font-semibold mb-4">Add Expense</h2>
+                  {session && (
+                    <CreateExpenseForm
+                      groupId={groups?.[0]?.id || ''}
+                      defaultCurrency={groups?.[0]?.default_currency || 'USD'}
+                      groupMembers={[]}
+                      onSuccess={() => {
+                        setIsExpenseDialogOpen(false);
+                        queryClient.invalidateQueries({ queryKey: ['recent-expenses'] });
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Dialog>
       </div>
     </MainLayout>
   );
