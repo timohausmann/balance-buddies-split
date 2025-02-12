@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { currencies } from "@/lib/currencies";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { BaseSelect } from "@/components/ui/base-select";
 
 interface EditGroupFormProps {
   group: {
@@ -24,6 +25,14 @@ export function EditGroupForm({ group, onSuccess }: EditGroupFormProps) {
   const [currency, setCurrency] = useState(group.default_currency);
   const [customCurrency, setCustomCurrency] = useState("");
   const { toast } = useToast();
+
+  const currencyOptions = [
+    ...currencies.map((curr) => ({
+      value: curr.code,
+      label: `${curr.code} (${curr.symbol}) - ${curr.name}`,
+    })),
+    { value: "other", label: "Other" },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,24 +93,13 @@ export function EditGroupForm({ group, onSuccess }: EditGroupFormProps) {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="currency" className="flex items-center gap-1">
-          Default Currency
-          <span className="text-red-500">*</span>
-        </Label>
-        <select
-          id="currency"
-          value={currency}
-          onChange={(e) => setCurrency(e.target.value)}
-          className="w-full h-10 px-3 pr-10 rounded-md border border-input bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
+        <BaseSelect
+          label="Default Currency"
           required
-        >
-          {currencies.map((curr) => (
-            <option key={curr.code} value={curr.code}>
-              {curr.code} ({curr.symbol}) - {curr.name}
-            </option>
-          ))}
-          <option value="other">Other</option>
-        </select>
+          value={currency}
+          onValueChange={setCurrency}
+          options={currencyOptions}
+        />
         {currency === 'other' && (
           <div className="mt-2">
             <Input
