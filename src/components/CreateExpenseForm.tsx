@@ -122,6 +122,9 @@ export function CreateExpenseForm({
     }
   });
 
+  const selectedGroupId = watch("groupId");
+  const selectedGroup = userGroups?.find(g => g.id === selectedGroupId);
+
   // Replace the current user useEffect with this new one for group changes
   useEffect(() => {
     if (selectedGroup && !expenseToEdit) {
