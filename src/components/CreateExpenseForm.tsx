@@ -4,13 +4,11 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { CurrencySelect } from "./ui/currency-select";
 import { Switch } from "./ui/switch";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { BaseSelect } from "./ui/base-select";
 
 interface CreateExpenseFormProps {
   groupId: string;
@@ -47,6 +45,17 @@ export function CreateExpenseForm({ groupId, groupMembers, defaultCurrency, onSu
       participantIds: groupMembers.map(member => member.user_id)
     }
   });
+
+  const spreadTypeOptions = [
+    { value: 'equal', label: 'Equal split' },
+    { value: 'percentage', label: 'Percentage' },
+    { value: 'amount', label: 'Fixed amount' }
+  ];
+
+  const paidByOptions = groupMembers.map(member => ({
+    value: member.user_id,
+    label: member.profiles?.display_name || 'Unknown'
+  }));
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -130,33 +139,24 @@ export function CreateExpenseForm({ groupId, groupMembers, defaultCurrency, onSu
             )}
           </div>
 
-          <div>
-            <Label htmlFor="currency">Currency <span className="text-red-500">*</span></Label>
-            <CurrencySelect
-              defaultValue={defaultCurrency}
-              onValueChange={(value) => setValue("currency", value)}
-            />
-          </div>
+          <BaseSelect
+            label="Currency"
+            required
+            value={watch("currency")}
+            onValueChange={(value) => setValue("currency", value)}
+            options={[
+              { value: defaultCurrency, label: defaultCurrency }
+            ]}
+          />
         </div>
 
-        <div>
-          <Label htmlFor="paidByUserId">Paid by <span className="text-red-500">*</span></Label>
-          <Select
-            value={watch("paidByUserId")}
-            onValueChange={(value) => setValue("paidByUserId", value)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {groupMembers.map((member) => (
-                <SelectItem key={member.user_id} value={member.user_id}>
-                  {member.profiles?.display_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <BaseSelect
+          label="Paid by"
+          required
+          value={watch("paidByUserId")}
+          onValueChange={(value) => setValue("paidByUserId", value)}
+          options={paidByOptions}
+        />
 
         <div>
           <Label>Participants</Label>
@@ -184,22 +184,13 @@ export function CreateExpenseForm({ groupId, groupMembers, defaultCurrency, onSu
           </div>
         </div>
 
-        <div>
-          <Label htmlFor="spreadType">Split type <span className="text-red-500">*</span></Label>
-          <Select
-            defaultValue="equal"
-            onValueChange={(value) => setValue("spreadType", value)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="equal">Equal split</SelectItem>
-              <SelectItem value="percentage">Percentage</SelectItem>
-              <SelectItem value="amount">Fixed amount</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <BaseSelect
+          label="Split type"
+          required
+          value={watch("spreadType")}
+          onValueChange={(value) => setValue("spreadType", value)}
+          options={spreadTypeOptions}
+        />
 
         <div>
           <Label htmlFor="description">Description</Label>
