@@ -8,6 +8,15 @@ import { Group } from "@/types";
 
 interface GroupHeaderProps {
   group: Group;
+  expenses?: Array<{
+    amount: number;
+    paid_by_user_id: string;
+    expense_participants: Array<{
+      user_id: string;
+      share_amount: number | null;
+      share_percentage: number | null;
+    }>;
+  }>;
   isAdmin: boolean;
   onEditClick: () => void;
   onShareClick: () => void;
@@ -16,6 +25,7 @@ interface GroupHeaderProps {
 
 export const GroupHeader = ({
   group,
+  expenses = [],
   isAdmin,
   onEditClick,
   onShareClick,
@@ -45,7 +55,11 @@ export const GroupHeader = ({
           </Collapsible>
         )}
 
-        <GroupMemberChips members={group.group_members} />
+        <GroupMemberChips 
+          members={group.group_members} 
+          expenses={expenses}
+          currency={group.default_currency}
+        />
       </div>
 
       {isAdmin && (
