@@ -8,9 +8,13 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail, User } from "lucide-react";
 
-export const AuthForm = () => {
+interface AuthFormProps {
+  initialMode?: "login" | "signup";
+}
+
+export const AuthForm = ({ initialMode = "login" }: AuthFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(initialMode === "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -133,7 +137,10 @@ export const AuthForm = () => {
       <div className="text-center">
         <button
           type="button"
-          onClick={() => setIsSignUp(!isSignUp)}
+          onClick={() => {
+            setIsSignUp(!isSignUp);
+            navigate(isSignUp ? '/login' : '/signup');
+          }}
           className="text-sm text-primary hover:underline"
         >
           {isSignUp
