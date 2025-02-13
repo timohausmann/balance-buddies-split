@@ -114,7 +114,6 @@ export function ParticipantRow({
       <Switch
         checked={isParticipant}
         onCheckedChange={onParticipantToggle}
-        className="h-4 w-7 shrink-0"
       />
     </div>
   );
