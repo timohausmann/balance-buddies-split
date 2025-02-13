@@ -11,7 +11,6 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 const Index = () => {
   const { toast } = useToast();
   const [showAllGroups, setShowAllGroups] = useState(false);
-  const queryClient = useQueryClient();
 
   const { data: session } = useQuery({
     queryKey: ['session'],
