@@ -7,8 +7,6 @@ import { UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form"
 import { FormValues } from "./types";
 import { Input } from "@/components/ui/input";
 import { ParticipantsSection } from "./ParticipantsSection";
-import { GroupRow } from "./GroupRow";
-import { PaidByDateRow } from "./PaidByDateRow";
 
 interface AdditionalDetailsSectionProps {
   register: UseFormRegister<FormValues>;
@@ -39,8 +37,9 @@ export function AdditionalDetailsSection({
     <Accordion.Root 
       type="multiple" 
       className="space-y-2"
-      defaultValue={['paidBy']}
+      defaultValue={['participants', 'date']}
     >
+      {/* Group and Paid By temporarily removed
       <Accordion.Item value="paidBy" className="border-b">
         <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
           <span>Paid By</span>
@@ -67,6 +66,7 @@ export function AdditionalDetailsSection({
           </div>
         </Accordion.Content>
       </Accordion.Item>
+      */}
 
       <Accordion.Item value="participants" className="border-b">
         <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
@@ -99,18 +99,6 @@ export function AdditionalDetailsSection({
           )}
         </Accordion.Content>
       </Accordion.Item>
-
-      {/* Split Type coming in V2
-      <Accordion.Item value="split" className="border-b">
-        <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
-          <span>Split Type</span>
-          <ChevronDown className="h-4 w-4 transition-transform duration-200" />
-        </Accordion.Trigger>
-        <Accordion.Content className="pb-4">
-          <SplitTypeRow watch={watch} setValue={setValue} />
-        </Accordion.Content>
-      </Accordion.Item>
-      */}
 
       <Accordion.Item value="description" className="border-b">
         <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
