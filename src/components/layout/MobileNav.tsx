@@ -13,7 +13,7 @@ interface MobileNavProps {
 
 export function MobileNav({ groups, onClose, onLogout }: MobileNavProps) {
   return (
-    <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+    <SheetContent side="right" className="w-[300px] sm:w-[400px]">
       <nav className="flex flex-col gap-4">
         <Link
           to="/profile"
