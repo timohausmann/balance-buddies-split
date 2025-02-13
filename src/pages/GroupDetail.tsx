@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { GroupHeader } from "@/components/group/GroupHeader";
 import { GroupDialogs } from "@/components/group/GroupDialogs";
+import { GroupBalanceSummary } from "@/components/group/GroupBalanceSummary";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -61,6 +62,8 @@ const GroupDetail = () => {
           ),
           expense_participants (
             user_id,
+            share_amount,
+            share_percentage,
             participant_profile:profiles!expense_participants_user_id_fkey1 (
               display_name
             )
@@ -150,6 +153,14 @@ const GroupDetail = () => {
             onEditClick={() => setIsEditOpen(true)}
             onShareClick={() => setIsShareOpen(true)}
             onDeleteClick={() => setIsDeleteDialogOpen(true)}
+          />
+        )}
+
+        {group && expenses && (
+          <GroupBalanceSummary
+            expenses={expenses}
+            members={group.group_members}
+            currency={group.default_currency}
           />
         )}
 
