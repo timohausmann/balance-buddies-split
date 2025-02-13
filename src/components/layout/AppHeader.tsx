@@ -39,7 +39,7 @@ export const AppHeader = ({ displayName }: AppHeaderProps) => {
     <header className="w-full border-b bg-white sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="h-16 flex items-center justify-between">
-          <Logo />
+          <Logo href="/dashboard" />
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -50,20 +50,20 @@ export const AppHeader = ({ displayName }: AppHeaderProps) => {
                 <span className="hidden md:inline">{displayName}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-48 bg-white">
               <DropdownMenuItem asChild>
-                <Link to="/profile" className="flex items-center">
+                <Link to="/profile" className="flex items-center hover:bg-neutral-100 cursor-pointer w-full">
                   <UserIcon className="mr-2 h-4 w-4" />
                   View Profile
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/profile/edit" className="flex items-center">
+                <Link to="/profile/edit" className="flex items-center hover:bg-neutral-100 cursor-pointer w-full">
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Profile
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout}>
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer hover:bg-neutral-100">
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </DropdownMenuItem>
