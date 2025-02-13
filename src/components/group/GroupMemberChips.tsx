@@ -1,5 +1,5 @@
 
-import { User, Wallet } from "lucide-react";
+import { User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { GroupMember } from "@/types";
@@ -49,11 +49,12 @@ export const GroupMemberChips = ({
 
   const formatter = new Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: currency
+    currency: currency,
+    signDisplay: 'always'
   });
 
   return (
-    <div className="flex flex-wrap gap-2 mt-2">
+    <div className="flex flex-wrap gap-2">
       {members?.map((member) => {
         const balance = calculateBalance(member.user_id);
         
@@ -78,7 +79,7 @@ export const GroupMemberChips = ({
                     balance > 0 ? 'text-green-600' : 'text-red-600'
                   }`}
                 >
-                  {balance > 0 ? '+' : ''}{formatter.format(Math.abs(balance))}
+                  {formatter.format(balance)}
                 </span>
               )}
             </div>

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -49,16 +48,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route
-              path="/"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Landing />
-                )
-              }
-            />
+            <Route path="/" element={<Landing />} />
             <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} />
             <Route path="/signup" element={!isAuthenticated ? <SignUp /> : <Navigate to="/dashboard" replace />} />
             <Route path="/invite/:id" element={<GroupInvite />} />

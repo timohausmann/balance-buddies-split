@@ -34,62 +34,64 @@ export const GroupHeader = ({
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   return (
-    <header className="flex justify-between items-start mb-8">
-      <div className="flex-1">
-        <h1 className="text-3xl font-bold text-neutral-900 mb-2">{group.title}</h1>
-        
-        {group.description && (
-          <Collapsible
-            open={isDescriptionExpanded}
-            onOpenChange={setIsDescriptionExpanded}
-            className="relative"
-          >
-            <CollapsibleTrigger className="w-full text-left">
-              <p className={`text-neutral-500 ${!isDescriptionExpanded ? 'line-clamp-2' : ''} ${!isDescriptionExpanded ? 'after:absolute after:bottom-0 after:left-0 after:right-0 after:h-8 after:bg-gradient-to-t after:from-neutral-50 after:to-transparent' : ''}`}>
-                {group.description}
-              </p>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <p className="text-neutral-500">{group.description}</p>
-            </CollapsibleContent>
-          </Collapsible>
-        )}
+    <header className="mb-8">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h1 className="text-3xl font-bold text-neutral-900 mb-2">{group.title}</h1>
+          
+          {group.description && (
+            <Collapsible
+              open={isDescriptionExpanded}
+              onOpenChange={setIsDescriptionExpanded}
+              className="relative"
+            >
+              <CollapsibleTrigger className="w-full text-left">
+                <p className={`text-neutral-500 ${!isDescriptionExpanded ? 'line-clamp-2' : ''} ${!isDescriptionExpanded ? 'after:absolute after:bottom-0 after:left-0 after:right-0 after:h-8 after:bg-gradient-to-t after:from-neutral-50 after:to-transparent' : ''}`}>
+                  {group.description}
+                </p>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <p className="text-neutral-500">{group.description}</p>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+        </div>
 
-        <GroupMemberChips 
-          members={group.group_members} 
-          expenses={expenses}
-          currency={group.default_currency}
-        />
+        {isAdmin && (
+          <div className="flex gap-2 ml-4">
+            <Button 
+              variant="outline" 
+              onClick={onShareClick}
+              className="rounded-full"
+            >
+              <UserPlus className="h-4 w-4" />
+              <span className="ml-2 sm:inline hidden">Invite</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={onEditClick}
+              className="rounded-full"
+            >
+              <Edit className="h-4 w-4" />
+              <span className="ml-2 sm:inline hidden">Edit</span>
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={onDeleteClick}
+              className="rounded-full"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="ml-2 sm:inline hidden">Delete</span>
+            </Button>
+          </div>
+        )}
       </div>
 
-      {isAdmin && (
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={onShareClick}
-            className="rounded-full"
-          >
-            <UserPlus className="h-4 w-4" />
-            <span className="ml-2 sm:inline hidden">Invite</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={onEditClick}
-            className="rounded-full"
-          >
-            <Edit className="h-4 w-4" />
-            <span className="ml-2 sm:inline hidden">Edit</span>
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={onDeleteClick}
-            className="rounded-full"
-          >
-            <Trash2 className="h-4 w-4" />
-            <span className="ml-2 sm:inline hidden">Delete</span>
-          </Button>
-        </div>
-      )}
+      <GroupMemberChips 
+        members={group.group_members} 
+        expenses={expenses}
+        currency={group.default_currency}
+      />
     </header>
   );
 };
