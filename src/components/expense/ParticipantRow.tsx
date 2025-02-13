@@ -58,7 +58,7 @@ export function ParticipantRow({
     <div className={`flex items-center gap-3 py-1 px-3 rounded-lg transition-all bg-neutral-50 ${
       isParticipant ? "opacity-100" : "opacity-50"
     }`}>
-      <div className="flex items-center gap-2 flex-[2]">
+      <div className="flex items-center gap-2 flex-1">
         <Avatar className="h-8 w-8 bg-neutral-100">
           <AvatarFallback className="flex items-center justify-center">
             <UserRound className="h-4 w-4 text-neutral-500" />
@@ -85,7 +85,7 @@ export function ParticipantRow({
 
       {isParticipant && (
         <>
-          <div className="flex-[3]">
+          <div className="w-[120px] shrink-0">
             <Slider
               defaultValue={[localShare]}
               value={[localShare]}
@@ -114,7 +114,7 @@ export function ParticipantRow({
       <Switch
         checked={isParticipant}
         onCheckedChange={onParticipantToggle}
-        className="h-4 w-7 shrink-0 [&>span]:h-3 [&>span]:w-3"
+        className="h-4 w-7 shrink-0"
       />
     </div>
   );
