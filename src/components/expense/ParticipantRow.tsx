@@ -3,8 +3,8 @@ import { Switch } from "@/components/ui/switch";
 import { UserRound, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { Avatar } from "@/components/ui/avatar";
-import { useState } from "react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useState, useEffect } from "react";
 
 interface ParticipantRowProps {
   member: {
@@ -20,6 +20,7 @@ interface ParticipantRowProps {
   onPayerSelect: () => void;
   sharePercentage?: number;
   onSharePercentageChange: (value: number) => void;
+  totalParticipants: number;
 }
 
 export function ParticipantRow({
@@ -28,10 +29,18 @@ export function ParticipantRow({
   isPayer,
   onParticipantToggle,
   onPayerSelect,
-  sharePercentage = 0,
+  sharePercentage,
   onSharePercentageChange,
+  totalParticipants,
 }: ParticipantRowProps) {
-  const [localShare, setLocalShare] = useState(sharePercentage);
+  const initialShare = sharePercentage ?? (100 / (totalParticipants || 1));
+  const [localShare, setLocalShare] = useState(initialShare);
+
+  useEffect(() => {
+    if (sharePercentage !== undefined) {
+      setLocalShare(sharePercentage);
+    }
+  }, [sharePercentage]);
 
   const handleSliderChange = (values: number[]) => {
     const newValue = values[0];
@@ -46,12 +55,14 @@ export function ParticipantRow({
   };
 
   return (
-    <div className={`flex items-center gap-4 py-1 rounded-lg transition-all ${
+    <div className={`flex items-center gap-3 py-1 rounded-lg transition-all ${
       isParticipant ? "opacity-100" : "opacity-50"
     }`}>
-      <div className="flex items-center gap-3 min-w-[200px]">
+      <div className="flex items-center gap-2 flex-[2]">
         <Avatar className="h-8 w-8 bg-neutral-100">
-          <UserRound className="h-4 w-4 text-neutral-500" />
+          <AvatarFallback className="flex items-center justify-center">
+            <UserRound className="h-4 w-4 text-neutral-500" />
+          </AvatarFallback>
         </Avatar>
         
         <button
@@ -64,17 +75,17 @@ export function ParticipantRow({
           }}
           disabled={!isParticipant}
           className={`flex items-center gap-2 ${
-            isPayer ? "text-green-700" : ""
+            isPayer ? "text-primary" : ""
           }`}
         >
-          <span>{member.profiles?.display_name}</span>
-          {isPayer && <Wallet className="h-4 w-4" />}
+          <span className="truncate">{member.profiles?.display_name}</span>
+          {isPayer && <Wallet className="h-4 w-4 shrink-0" />}
         </button>
       </div>
 
       {isParticipant && (
         <>
-          <div className="w-48">
+          <div className="flex-[3]">
             <Slider
               defaultValue={[localShare]}
               value={[localShare]}
@@ -82,6 +93,7 @@ export function ParticipantRow({
               max={100}
               step={1}
               className="relative flex w-full touch-none select-none items-center"
+              classNameTrack="bg-neutral-100"
             />
           </div>
           <Input
@@ -90,7 +102,7 @@ export function ParticipantRow({
             max={100}
             value={localShare}
             onChange={handleInputChange}
-            className="w-20"
+            className="w-20 shrink-0"
           />
         </>
       )}
@@ -98,7 +110,7 @@ export function ParticipantRow({
       <Switch
         checked={isParticipant}
         onCheckedChange={onParticipantToggle}
-        className="h-4 w-7"
+        className="h-4 w-7 shrink-0"
       />
     </div>
   );

@@ -57,6 +57,7 @@ export function ParticipantsSection({
             onSharePercentageChange={(value) => {
               console.log(`Share percentage for ${member.user_id}: ${value}`);
             }}
+            totalParticipants={currentParticipants.length}
           />
         );
       })}
