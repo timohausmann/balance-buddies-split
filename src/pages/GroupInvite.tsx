@@ -13,6 +13,7 @@ const GroupInvite = () => {
   const [group, setGroup] = useState<{ title: string; description: string | null } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isJoining, setIsJoining] = useState(false);
+  const [isMember, setIsMember] = useState(false);
 
   useEffect(() => {
     const fetchGroup = async () => {
@@ -37,6 +38,20 @@ const GroupInvite = () => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
+
+      if (session) {
+        // Check if user is already a member
+        const { data, error } = await supabase
+          .from('group_members')
+          .select('id')
+          .eq('group_id', id)
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+
+        if (!error && data) {
+          setIsMember(true);
+        }
+      }
     };
 
     fetchGroup();
@@ -112,13 +127,27 @@ const GroupInvite = () => {
             )}
 
             {isAuthenticated ? (
-              <Button 
-                onClick={handleAcceptInvite} 
-                className="w-full"
-                disabled={isJoining}
-              >
-                {isJoining ? "Joining..." : "Accept Invitation"}
-              </Button>
+              <>
+                {isMember ? (
+                  <>
+                    <p className="text-neutral-600">You are already in this group</p>
+                    <Button 
+                      onClick={() => navigate(`/groups/${id}`)} 
+                      className="w-full"
+                    >
+                      Go to group
+                    </Button>
+                  </>
+                ) : (
+                  <Button 
+                    onClick={handleAcceptInvite} 
+                    className="w-full"
+                    disabled={isJoining}
+                  >
+                    {isJoining ? "Joining..." : "Accept Invitation"}
+                  </Button>
+                )}
+              </>
             ) : (
               <div className="space-y-4">
                 <p className="text-neutral-600">
