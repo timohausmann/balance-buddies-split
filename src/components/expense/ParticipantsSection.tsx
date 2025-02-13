@@ -62,7 +62,9 @@ export function ParticipantsSection({
             />
 
             <button
-              onClick={() => {
+              type="button" // Prevent form submission
+              onClick={(e) => {
+                e.preventDefault(); // Extra prevention
                 if (isParticipant) {
                   setValue("paidByUserId", member.user_id);
                 }
@@ -92,23 +94,23 @@ export function ParticipantsSection({
 
             {isParticipant && (
               <div className="flex items-center gap-3 ml-auto">
-                <Slider
-                  value={[0]} // TODO: Connect to share percentage
-                  onValueChange={(values) => {
-                    // TODO: Update share percentage
-                    console.log(values[0]);
-                  }}
-                  max={100}
-                  step={1}
-                  className="w-32"
-                />
+                <div className="w-32">
+                  <Slider
+                    defaultValue={[0]}
+                    value={[0]} // TODO: Connect to share percentage
+                    onValueChange={(values) => {
+                      console.log(values[0]);
+                    }}
+                    max={100}
+                    step={1}
+                  />
+                </div>
                 <Input
                   type="number"
                   min={0}
                   max={100}
                   value={0} // TODO: Connect to share percentage
                   onChange={(e) => {
-                    // TODO: Update share percentage
                     console.log(e.target.value);
                   }}
                   className="w-20"
