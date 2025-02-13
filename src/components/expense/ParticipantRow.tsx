@@ -93,7 +93,6 @@ export function ParticipantRow({
               max={100}
               step={1}
               className="relative flex w-full touch-none select-none items-center"
-              classNameTrack="bg-neutral-100"
             />
           </div>
           <Input
