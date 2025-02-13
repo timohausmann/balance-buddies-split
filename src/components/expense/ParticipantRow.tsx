@@ -55,7 +55,7 @@ export function ParticipantRow({
   };
 
   return (
-    <div className={`flex items-center gap-3 py-1 rounded-lg transition-all ${
+    <div className={`flex items-center gap-3 py-1 px-3 rounded-lg transition-all bg-neutral-50 ${
       isParticipant ? "opacity-100" : "opacity-50"
     }`}>
       <div className="flex items-center gap-2 flex-[2]">
@@ -95,21 +95,26 @@ export function ParticipantRow({
               className="relative flex w-full touch-none select-none items-center"
             />
           </div>
-          <Input
-            type="number"
-            min={0}
-            max={100}
-            value={localShare}
-            onChange={handleInputChange}
-            className="w-20 shrink-0"
-          />
+          <div className="relative w-20 shrink-0">
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              value={localShare}
+              onChange={handleInputChange}
+              className="pr-6"
+            />
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500">
+              %
+            </span>
+          </div>
         </>
       )}
 
       <Switch
         checked={isParticipant}
         onCheckedChange={onParticipantToggle}
-        className="h-4 w-7 shrink-0"
+        className="h-4 w-7 shrink-0 [&>span]:h-3 [&>span]:w-3"
       />
     </div>
   );
