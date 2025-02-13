@@ -1,11 +1,7 @@
 
-import { Switch } from "@/components/ui/switch";
 import { UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { FormValues } from "./types";
-import { UserRound, Wallet } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { useState } from "react";
+import { ParticipantRow } from "./ParticipantRow";
 
 interface ParticipantsSectionProps {
   groupMembers: Array<{
@@ -32,93 +28,36 @@ export function ParticipantsSection({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       {groupMembers.map((member) => {
         const isParticipant = currentParticipants.includes(member.user_id);
         const isPayer = paidByUserId === member.user_id;
         
         return (
-          <div
+          <ParticipantRow
             key={member.user_id}
-            className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
-              isParticipant ? "bg-neutral-50" : "bg-neutral-50/50"
-            }`}
-          >
-            <Switch
-              id={`participant-${member.user_id}`}
-              checked={isParticipant}
-              onCheckedChange={(checked) => {
-                setValue(
-                  "participantIds",
-                  checked
-                    ? [...currentParticipants, member.user_id]
-                    : currentParticipants.filter(id => id !== member.user_id)
-                );
-                // If we're disabling a participant who was the payer, reset the payer
-                if (!checked && isPayer) {
-                  setValue("paidByUserId", "");
-                }
-              }}
-            />
-
-            <button
-              type="button" // Prevent form submission
-              onClick={(e) => {
-                e.preventDefault(); // Extra prevention
-                if (isParticipant) {
-                  setValue("paidByUserId", member.user_id);
-                }
-              }}
-              disabled={!isParticipant}
-              className={`flex items-center gap-2 px-2 py-1 rounded transition-all ${
-                isPayer 
-                  ? "bg-green-100 text-green-700" 
-                  : isParticipant 
-                    ? "hover:bg-neutral-100" 
-                    : "opacity-50 cursor-not-allowed"
-              }`}
-            >
-              {isPayer ? (
-                <Wallet className="h-4 w-4" />
-              ) : (
-                <UserRound className={`h-4 w-4 ${
-                  isParticipant ? "text-neutral-500" : "text-neutral-300"
-                }`} />
-              )}
-              <span className={`transition-opacity ${
-                isParticipant ? "opacity-100" : "opacity-40"
-              }`}>
-                {member.profiles?.display_name}
-              </span>
-            </button>
-
-            {isParticipant && (
-              <div className="flex items-center gap-3 ml-auto">
-                <div className="w-32">
-                  <Slider
-                    defaultValue={[0]}
-                    value={[0]} // TODO: Connect to share percentage
-                    onValueChange={(values) => {
-                      console.log(values[0]);
-                    }}
-                    max={100}
-                    step={1}
-                  />
-                </div>
-                <Input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={0} // TODO: Connect to share percentage
-                  onChange={(e) => {
-                    console.log(e.target.value);
-                  }}
-                  className="w-20"
-                />
-                <span className="text-sm text-neutral-500">%</span>
-              </div>
-            )}
-          </div>
+            member={member}
+            isParticipant={isParticipant}
+            isPayer={isPayer}
+            onParticipantToggle={(checked) => {
+              setValue(
+                "participantIds",
+                checked
+                  ? [...currentParticipants, member.user_id]
+                  : currentParticipants.filter(id => id !== member.user_id)
+              );
+              if (!checked && isPayer) {
+                setValue("paidByUserId", "");
+              }
+            }}
+            onPayerSelect={() => {
+              setValue("paidByUserId", member.user_id);
+            }}
+            sharePercentage={0} // TODO: Connect to real share percentage
+            onSharePercentageChange={(value) => {
+              console.log(`Share percentage for ${member.user_id}: ${value}`);
+            }}
+          />
         );
       })}
     </div>
