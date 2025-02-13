@@ -3,8 +3,18 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Landing = () => {
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
   return (
     <>
       <PublicHeader />
@@ -53,14 +63,22 @@ const Landing = () => {
                 transition={{ delay: 0.2, duration: 0.5 }}
                 className="space-y-4"
               >
-                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary-dark">
-                  <Link to="/signup">Sign up for free</Link>
-                </Button>
-                <div className="mt-4">
-                  <Link to="/login" className="text-primary hover:text-primary-dark underline">
-                    Already have an account?
-                  </Link>
-                </div>
+                {session ? (
+                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary-dark">
+                    <Link to="/dashboard">Go to app</Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary-dark">
+                      <Link to="/signup">Sign up for free</Link>
+                    </Button>
+                    <div className="mt-4">
+                      <Link to="/login" className="text-primary hover:text-primary-dark underline">
+                        Already have an account?
+                      </Link>
+                    </div>
+                  </>
+                )}
               </motion.div>
 
               <motion.div
