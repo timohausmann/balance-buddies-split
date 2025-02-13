@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, Users, User, LogOut } from "lucide-react";
+import { User, LogOut } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Group } from "./types";
+import { Logo } from "./Logo";
 
 interface DesktopNavProps {
   groups?: Group[];
@@ -19,35 +20,7 @@ interface DesktopNavProps {
 export function DesktopNav({ groups, displayName, onLogout }: DesktopNavProps) {
   return (
     <div className="flex w-full justify-between">
-      <nav className="hidden md:flex md:gap-6 items-center">
-        <Link
-          to="/dashboard"
-          className="flex items-center gap-2 font-medium"
-        >
-          <Home className="h-5 w-5" />
-          Dashboard
-        </Link>
-        <div className="relative group">
-          <Link
-            to="/groups"
-            className="flex items-center gap-2 font-medium cursor-pointer"
-          >
-            <Users className="h-5 w-5" />
-            Groups
-          </Link>
-          <div className="absolute left-0 top-full hidden group-hover:block bg-white shadow-lg rounded-md p-2 min-w-[200px]">
-            {groups?.map((group) => (
-              <Link
-                key={group.id}
-                to={`/groups/${group.id}`}
-                className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-neutral-50"
-              >
-                {group.title}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </nav>
+      <Logo />
       <div className="flex items-center gap-4">
         <Link
           to="/profile"
