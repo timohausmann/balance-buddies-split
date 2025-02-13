@@ -11,6 +11,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { GroupHeader } from "@/components/group/GroupHeader";
 import { GroupDialogs } from "@/components/group/GroupDialogs";
 import { GroupBalanceSummary } from "@/components/group/GroupBalanceSummary";
+import { GroupExpensesList } from "@/components/group/GroupExpensesList";
+import { AddExpenseButton } from "@/components/group/AddExpenseButton";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +23,7 @@ const GroupDetail = () => {
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const { data: group, refetch } = useQuery({
+  const { data: group, refetch: refetchGroup } = useQuery({
     queryKey: ['group', id],
     queryFn: async () => {
       if (!id) throw new Error('No group ID provided');
@@ -48,7 +50,7 @@ const GroupDetail = () => {
     enabled: !!id
   });
 
-  const { data: expenses } = useQuery({
+  const { data: expenses, refetch: refetchExpenses } = useQuery({
     queryKey: ['expenses', id],
     queryFn: async () => {
       if (!id) throw new Error('No group ID provided');
@@ -118,12 +120,12 @@ const GroupDetail = () => {
 
   const handleEditSuccess = () => {
     setIsEditOpen(false);
-    refetch();
+    refetchGroup();
   };
 
   const handleExpenseSuccess = () => {
     setIsExpenseFormOpen(false);
-    refetch();
+    refetchExpenses();
   };
 
   const copyInviteLink = async () => {
@@ -157,11 +159,17 @@ const GroupDetail = () => {
         )}
 
         {group && expenses && (
-          <GroupBalanceSummary
-            expenses={expenses}
-            members={group.group_members}
-            currency={group.default_currency}
-          />
+          <>
+            <GroupBalanceSummary
+              expenses={expenses}
+              members={group.group_members}
+              currency={group.default_currency}
+            />
+            <GroupExpensesList 
+              expenses={expenses} 
+              onAddExpenseClick={() => setIsExpenseFormOpen(true)}
+            />
+          </>
         )}
 
         <GroupDialogs
@@ -180,42 +188,7 @@ const GroupDetail = () => {
           onCopyInviteLink={copyInviteLink}
         />
 
-        <div className="space-y-4">
-          {expenses?.length === 0 ? (
-            <p className="text-center py-8 text-neutral-500">
-              Add the first expense to get started
-            </p>
-          ) : (
-            expenses?.map((expense) => (
-              <ExpenseCard
-                key={expense.id}
-                id={expense.id}
-                title={expense.title}
-                amount={expense.amount}
-                currency={expense.currency}
-                date={new Date(expense.created_at)}
-                paidBy={expense.paid_by_profile?.display_name || 'Unknown'}
-                participants={expense.expense_participants.map(p => p.participant_profile?.display_name || 'Unknown')}
-              />
-            ))
-          )}
-        </div>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => setIsExpenseFormOpen(true)}
-                className="fixed bottom-6 right-6 w-14 h-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white hover:bg-primary-dark transition-colors duration-200"
-              >
-                <Plus className="w-6 h-6" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent className="bg-white px-3 py-1.5 text-sm shadow-md rounded-md border">
-              Add expense
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <AddExpenseButton onClick={() => setIsExpenseFormOpen(true)} />
       </div>
     </MainLayout>
   );
