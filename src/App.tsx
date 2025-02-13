@@ -16,6 +16,7 @@ import ExpenseDetail from "./pages/ExpenseDetail";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import EditProfile from "./pages/EditProfile";
+import GroupInvite from "./pages/GroupInvite";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -60,6 +61,7 @@ const App = () => {
             />
             <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} />
             <Route path="/signup" element={!isAuthenticated ? <SignUp /> : <Navigate to="/dashboard" replace />} />
+            <Route path="/invite/:id" element={<GroupInvite />} />
             <Route
               path="/dashboard"
               element={
