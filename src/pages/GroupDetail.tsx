@@ -1,7 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
-import { Plus } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -10,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { GroupHeader } from "@/components/group/GroupHeader";
 import { GroupDialogs } from "@/components/group/GroupDialogs";
-import { GroupBalanceSummary } from "@/components/group/GroupBalanceSummary";
 import { GroupExpensesList } from "@/components/group/GroupExpensesList";
 import { AddExpenseButton } from "@/components/group/AddExpenseButton";
 
@@ -151,6 +149,7 @@ const GroupDetail = () => {
         {group && (
           <GroupHeader
             group={group}
+            expenses={expenses}
             isAdmin={isAdmin}
             onEditClick={() => setIsEditOpen(true)}
             onShareClick={() => setIsShareOpen(true)}
@@ -159,17 +158,10 @@ const GroupDetail = () => {
         )}
 
         {group && expenses && (
-          <>
-            <GroupBalanceSummary
-              expenses={expenses}
-              members={group.group_members}
-              currency={group.default_currency}
-            />
-            <GroupExpensesList 
-              expenses={expenses} 
-              onAddExpenseClick={() => setIsExpenseFormOpen(true)}
-            />
-          </>
+          <GroupExpensesList 
+            expenses={expenses} 
+            onAddExpenseClick={() => setIsExpenseFormOpen(true)}
+          />
         )}
 
         <GroupDialogs
