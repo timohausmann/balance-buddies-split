@@ -46,11 +46,23 @@ const GroupInvite = () => {
   const handleAcceptInvite = async () => {
     setIsJoining(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to join a group.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('group_members')
-        .insert([
-          { group_id: id }
-        ]);
+        .insert({
+          group_id: id,
+          user_id: user.id
+        });
 
       if (error) {
         if (error.code === '23505') { // Unique violation
