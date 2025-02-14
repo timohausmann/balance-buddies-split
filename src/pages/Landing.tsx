@@ -17,12 +17,12 @@ const Landing = () => {
 
   return (
     <>
-      <PublicHeader />
+      <PublicHeader session={session} />
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
         {/* Background SVG */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 w-full overflow-hidden pointer-events-none">
           <svg
-            className="absolute w-full h-full opacity-50"
+            className="absolute w-screen h-full opacity-50"
             viewBox="0 0 1000 1000"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -41,7 +41,7 @@ const Landing = () => {
           </svg>
         </div>
 
-        <div className="container mx-auto px-4 py-16 md:py-24 pt-32">
+        <div className="container mx-auto px-4 py-16 md:py-24 pt-32 relative">
           <div className="grid grid-cols-1 gap-12">
             <div className="space-y-8 max-w-3xl mx-auto text-center">
               <motion.div
@@ -50,7 +50,7 @@ const Landing = () => {
                 transition={{ duration: 0.5 }}
               >
                 <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary via-primary-light to-primary bg-clip-text text-transparent">
-                  Split Expenses, Stay Friends
+                  Easily balance your expenses with friends
                 </h1>
                 <p className="mt-6 text-xl text-neutral-600">
                   Balance Buddies makes group expense tracking simple and stress-free. Perfect for roommates, trips, and shared expenses.
