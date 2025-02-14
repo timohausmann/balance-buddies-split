@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 const GroupInvite = () => {
   const { id } = useParams();
@@ -14,6 +15,14 @@ const GroupInvite = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const [isMember, setIsMember] = useState(false);
+
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
 
   useEffect(() => {
     const fetchGroup = async () => {
@@ -110,7 +119,7 @@ const GroupInvite = () => {
 
   return (
     <>
-      <PublicHeader />
+      <PublicHeader session={session} />
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full space-y-8 bg-white p-6 rounded-lg shadow-sm">
           <div className="text-center space-y-4">

@@ -24,11 +24,11 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             variant: "destructive",
           });
           
-          navigate("/");
+          navigate("/login");
         }
       } catch (error) {
         console.error("Auth error:", error);
-        navigate("/");
+        navigate("/login");
       } finally {
         setIsLoading(false);
       }
@@ -39,7 +39,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) {
-        navigate("/");
+        navigate("/login");
       }
     });
 
