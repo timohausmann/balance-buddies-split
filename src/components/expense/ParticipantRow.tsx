@@ -19,8 +19,12 @@ interface ParticipantRowProps {
   onParticipantToggle: (checked: boolean) => void;
   onPayerSelect: () => void;
   sharePercentage?: number;
+  shareAmount?: number;
   onSharePercentageChange: (value: number) => void;
+  onShareAmountChange: (value: number) => void;
   totalParticipants: number;
+  totalAmount: number;
+  spreadType: string;
 }
 
 export function ParticipantRow({
@@ -29,18 +33,24 @@ export function ParticipantRow({
   isPayer,
   onParticipantToggle,
   onPayerSelect,
-  sharePercentage,
+  sharePercentage = 0,
+  shareAmount = 0,
   onSharePercentageChange,
+  onShareAmountChange,
   totalParticipants,
+  totalAmount,
+  spreadType,
 }: ParticipantRowProps) {
-  const initialShare = sharePercentage ?? (100 / (totalParticipants || 1));
-  const [localShare, setLocalShare] = useState(initialShare);
+  const [localShare, setLocalShare] = useState(sharePercentage);
+  const [localAmount, setLocalAmount] = useState(shareAmount);
 
   useEffect(() => {
-    if (sharePercentage !== undefined) {
-      setLocalShare(sharePercentage);
-    }
+    setLocalShare(sharePercentage);
   }, [sharePercentage]);
+
+  useEffect(() => {
+    setLocalAmount(shareAmount);
+  }, [shareAmount]);
 
   const handleSliderChange = (values: number[]) => {
     const newValue = values[0];
@@ -48,10 +58,16 @@ export function ParticipantRow({
     onSharePercentageChange(newValue);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePercentInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = Math.min(100, Math.max(0, Number(e.target.value)));
     setLocalShare(newValue);
     onSharePercentageChange(newValue);
+  };
+
+  const handleAmountInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = Math.max(0, Number(e.target.value));
+    setLocalAmount(newValue);
+    onShareAmountChange(newValue);
   };
 
   return (
@@ -92,6 +108,7 @@ export function ParticipantRow({
               onValueChange={handleSliderChange}
               max={100}
               step={1}
+              disabled={spreadType !== 'percentage'}
               className="relative flex w-full touch-none select-none items-center"
             />
           </div>
@@ -101,11 +118,26 @@ export function ParticipantRow({
               min={0}
               max={100}
               value={localShare}
-              onChange={handleInputChange}
+              onChange={handlePercentInputChange}
+              disabled={spreadType !== 'percentage'}
               className="pr-6"
             />
             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500">
               %
+            </span>
+          </div>
+          <div className="relative w-24 shrink-0">
+            <Input
+              type="number"
+              min={0}
+              max={totalAmount}
+              value={localAmount.toFixed(2)}
+              onChange={handleAmountInputChange}
+              disabled={spreadType !== 'amount'}
+              className="pr-8"
+            />
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500">
+              €
             </span>
           </div>
         </>

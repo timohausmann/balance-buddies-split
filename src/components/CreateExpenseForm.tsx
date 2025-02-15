@@ -53,6 +53,8 @@ export function CreateExpenseForm({
     expenseToEdit
   });
 
+  const amount = parseFloat(watch("amount") || "0");
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
@@ -76,6 +78,7 @@ export function CreateExpenseForm({
           groupMembers={selectedGroup?.group_members || []}
           groupOptions={groupOptions}
           defaultOpenGroup={!groupId && !expenseToEdit}
+          amount={amount}
         />
       </div>
 
