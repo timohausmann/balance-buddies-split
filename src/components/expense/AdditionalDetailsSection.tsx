@@ -22,6 +22,7 @@ interface AdditionalDetailsSectionProps {
   }>;
   groupOptions: { value: string; label: string; }[];
   defaultOpenGroup?: boolean;
+  amount: number;
 }
 
 export function AdditionalDetailsSection({
@@ -32,6 +33,7 @@ export function AdditionalDetailsSection({
   groupMembers,
   groupOptions,
   defaultOpenGroup = false,
+  amount,
 }: AdditionalDetailsSectionProps) {
   return (
     <Accordion.Root 
@@ -49,6 +51,7 @@ export function AdditionalDetailsSection({
             groupMembers={groupMembers}
             watch={watch}
             setValue={setValue}
+            totalAmount={amount}
           />
         </Accordion.Content>
       </Accordion.Item>
