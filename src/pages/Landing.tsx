@@ -20,10 +20,11 @@ const Landing = () => {
       <PublicHeader session={session} />
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
         {/* Background SVG */}
-        <div className="absolute inset-0 w-full overflow-hidden pointer-events-none">
+        <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none">
           <svg
-            className="absolute w-screen h-full opacity-50"
-            viewBox="0 0 1000 1000"
+            className="absolute w-full h-full"
+            preserveAspectRatio="xMidYMid slice"
+            viewBox="0 0 1440 900"
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
@@ -33,11 +34,11 @@ const Landing = () => {
               </linearGradient>
             </defs>
             <path
-              d="M0,1000 C300,800 400,600 500,500 C600,400 700,300 1000,200 L1000,1000 L0,1000 Z"
+              d="M0,900 C432,720 576,540 720,450 C864,360 1008,270 1440,180 L1440,900 L0,900 Z"
               fill="url(#gradient)"
             />
-            <circle cx="750" cy="250" r="100" fill="url(#gradient)" />
-            <circle cx="250" cy="750" r="150" fill="url(#gradient)" />
+            <circle cx="1080" cy="225" r="144" fill="url(#gradient)" />
+            <circle cx="360" cy="675" r="216" fill="url(#gradient)" />
           </svg>
         </div>
 
