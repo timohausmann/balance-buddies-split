@@ -7,6 +7,7 @@ export interface FormValues {
   description?: string;
   paidByUserId: string;
   participantIds: string[];
+  participantShares: Record<string, number>;
   groupId: string;
   expenseDate: string;
 }

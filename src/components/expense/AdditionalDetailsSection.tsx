@@ -37,37 +37,8 @@ export function AdditionalDetailsSection({
     <Accordion.Root 
       type="multiple" 
       className="space-y-2"
-      defaultValue={['participants', 'date']}
+      defaultValue={['participants']}
     >
-      {/* Group and Paid By temporarily removed
-      <Accordion.Item value="paidBy" className="border-b">
-        <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
-          <span>Paid By</span>
-          <ChevronDown className="h-4 w-4 transition-transform duration-200" />
-        </Accordion.Trigger>
-        <Accordion.Content className="pb-4">
-          <div className="flex gap-4">
-            <div className="w-1/2">
-              <p className="mb-2 text-sm font-medium text-neutral-600">Group</p>
-              <GroupRow 
-                watch={watch}
-                setValue={setValue}
-                groupOptions={groupOptions}
-              />
-            </div>
-            <div className="w-1/2">
-              <p className="mb-2 text-sm font-medium text-neutral-600">Paid By</p>
-              <PaidByDateRow 
-                watch={watch}
-                setValue={setValue}
-                groupMembers={groupMembers}
-              />
-            </div>
-          </div>
-        </Accordion.Content>
-      </Accordion.Item>
-      */}
-
       <Accordion.Item value="participants" className="border-b">
         <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
           <span>Participants</span>

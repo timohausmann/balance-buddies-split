@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FormValues } from "../types";
@@ -106,6 +105,12 @@ export function useExpenseForm({
       description: expenseToEdit?.description || '',
       paidByUserId: expenseToEdit?.paid_by_user_id || '',
       participantIds: expenseToEdit?.expense_participants.map(p => p.user_id) || [],
+      participantShares: expenseToEdit?.expense_participants.reduce((acc: Record<string, number>, p) => {
+        if (p.share_percentage !== null) {
+          acc[p.user_id] = p.share_percentage;
+        }
+        return acc;
+      }, {}) || {},
       groupId: expenseToEdit?.group_id || groupId || '',
       expenseDate: expenseToEdit?.expense_date 
         ? new Date(expenseToEdit.expense_date).toISOString().slice(0, 16)
@@ -116,7 +121,6 @@ export function useExpenseForm({
   const selectedGroupId = watch("groupId");
   const selectedGroup = userGroups?.find(g => g.id === selectedGroupId);
 
-  // Update currency and participants when group changes
   useEffect(() => {
     if (!expenseToEdit && selectedGroup) {
       setValue("currency", selectedGroup.default_currency);
@@ -161,9 +165,7 @@ export function useExpenseForm({
             data.participantIds.map(userId => ({
               expense_id: expenseToEdit.id,
               user_id: userId,
-              share_percentage: data.spreadType === 'equal' 
-                ? 100 / data.participantIds.length 
-                : null
+              share_percentage: data.participantShares[userId] || (100 / data.participantIds.length)
             }))
           );
 
@@ -198,9 +200,7 @@ export function useExpenseForm({
             data.participantIds.map(userId => ({
               expense_id: expense.id,
               user_id: userId,
-              share_percentage: data.spreadType === 'equal' 
-                ? 100 / data.participantIds.length 
-                : null
+              share_percentage: data.participantShares[userId] || (100 / data.participantIds.length)
             }))
           );
 
