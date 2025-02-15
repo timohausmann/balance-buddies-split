@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { FormValues } from "../types";
+import { SubmitHandler } from "react-hook-form";
 
 interface UseExpenseSubmitProps {
   expenseToEdit?: {
@@ -22,7 +23,7 @@ export function useExpenseSubmit({
   const [isPending, setIsPending] = useState(false);
   const queryClient = useQueryClient();
 
-  const handleSubmit = async (data: FormValues) => {
+  const handleSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
       setIsPending(true);
 

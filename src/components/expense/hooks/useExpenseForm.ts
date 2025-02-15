@@ -64,6 +64,6 @@ export function useExpenseForm({
     isPending,
     selectedGroup,
     groupOptions,
-    onSubmit: formState.handleSubmit(submitHandler)
+    onSubmit: (e) => formState.handleSubmit(submitHandler)(e)
   };
 }
