@@ -93,8 +93,8 @@ export const GroupDialogs = ({
       </AlertDialog>
 
       <Dialog open={isExpenseFormOpen} onOpenChange={setIsExpenseFormOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="sticky top-0 bg-white z-10 pb-4">
             <DialogTitle>Add Expense</DialogTitle>
           </DialogHeader>
           {group && (

@@ -112,7 +112,7 @@ export function ParticipantRow({
               className="relative flex w-full touch-none select-none items-center"
             />
           </div>
-          <div className="relative w-20 shrink-0">
+          <div className="relative w-28 shrink-0">
             <Input
               type="number"
               min={0}
@@ -126,12 +126,12 @@ export function ParticipantRow({
               %
             </span>
           </div>
-          <div className="relative w-24 shrink-0">
+          <div className="relative w-32 shrink-0">
             <Input
               type="number"
               min={0}
               max={totalAmount}
-              value={localAmount.toFixed(2)}
+              value={localAmount}
               onChange={handleAmountInputChange}
               disabled={spreadType !== 'amount'}
               className="pr-8"

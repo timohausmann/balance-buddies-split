@@ -234,8 +234,8 @@ const ExpenseDetail = () => {
         </div>
 
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent>
-            <DialogHeader>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="sticky top-0 bg-white z-10 pb-4">
               <DialogTitle>Edit Expense</DialogTitle>
             </DialogHeader>
             <CreateExpenseForm

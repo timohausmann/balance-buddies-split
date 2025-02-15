@@ -1,10 +1,10 @@
-
 import { UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { FormValues } from "./types";
 import { ParticipantRow } from "./ParticipantRow";
 import { Wallet } from "lucide-react";
 import { useState, useEffect } from "react";
 import { SplitTypeRow } from "./SplitTypeRow";
+import { Check, AlertTriangle } from "lucide-react";
 
 interface ParticipantsSectionProps {
   groupMembers: Array<{
@@ -33,26 +33,28 @@ export function ParticipantsSection({
 
   // Initialize shares and amounts when relevant values change
   useEffect(() => {
-    const equalShare = currentParticipants.length > 0 
-      ? 100 / currentParticipants.length 
-      : 100;
-    const equalAmount = currentParticipants.length > 0
-      ? totalAmount / currentParticipants.length
-      : totalAmount;
+    if (spreadType === 'equal') {
+      const equalShare = currentParticipants.length > 0 
+        ? 100 / currentParticipants.length 
+        : 100;
+      const equalAmount = currentParticipants.length > 0
+        ? totalAmount / currentParticipants.length
+        : totalAmount;
 
-    const newShares = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
-      acc[userId] = equalShare;
-      return acc;
-    }, {});
+      const newShares = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
+        acc[userId] = equalShare;
+        return acc;
+      }, {});
 
-    const newAmounts = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
-      acc[userId] = equalAmount;
-      return acc;
-    }, {});
+      const newAmounts = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
+        acc[userId] = equalAmount;
+        return acc;
+      }, {});
 
-    setParticipantShares(newShares);
-    setParticipantAmounts(newAmounts);
-    setValue("participantShares", newShares);
+      setParticipantShares(newShares);
+      setParticipantAmounts(newAmounts);
+      setValue("participantShares", newShares);
+    }
   }, [currentParticipants.length, totalAmount, setValue, spreadType]);
 
   useEffect(() => {
@@ -92,6 +94,11 @@ export function ParticipantsSection({
     setParticipantShares(newShares);
     setValue("participantShares", newShares);
   };
+
+  // Calculate total shared amount
+  const totalSharedAmount = Object.values(participantAmounts).reduce((sum, amount) => sum + amount, 0);
+  const difference = totalAmount - totalSharedAmount;
+  const isBalanced = Math.abs(difference) < 0.01; // Account for floating point precision
 
   return (
     <div className="space-y-4">
@@ -142,6 +149,24 @@ export function ParticipantsSection({
         })}
       </div>
       
+      <div className={`flex items-center gap-2 p-3 rounded-lg ${
+        isBalanced ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+      }`}>
+        {isBalanced ? (
+          <>
+            <Check className="h-4 w-4" />
+            <p className="text-sm">Shared amounts check out!</p>
+          </>
+        ) : (
+          <>
+            <AlertTriangle className="h-4 w-4" />
+            <p className="text-sm">
+              Shared amounts {difference > 0 ? 'under' : 'over'} by {Math.abs(difference).toFixed(2)} €
+            </p>
+          </>
+        )}
+      </div>
+
       <div className="flex items-center gap-2 text-sm text-neutral-500">
         <Wallet className="h-4 w-4" />
         <p>Select who paid by tapping their name.</p>
