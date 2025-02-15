@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -113,6 +114,16 @@ const ExpenseDetail = () => {
   const isCreator = currentUser?.id === expense.created_by_user_id;
   const currencySymbol = getCurrencySymbol(expense.currency);
 
+  // Calculate share amounts based on spread type and percentages
+  const calculateShareAmount = (participant: any) => {
+    if (expense.spread_type === 'equal') {
+      return expense.amount / expense.expense_participants.length;
+    } else if (participant.share_percentage) {
+      return (expense.amount * participant.share_percentage) / 100;
+    }
+    return participant.share_amount || 0;
+  };
+
   return (
     <MainLayout>
       <div className="max-w-2xl mx-auto">
@@ -191,23 +202,25 @@ const ExpenseDetail = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {expense.expense_participants.map((participant) => (
-                  <TableRow key={participant.user_id}>
-                    <TableCell>{participant.participant_profile?.display_name}</TableCell>
-                    <TableCell className="text-right">
-                      {participant.share_percentage && `${participant.share_percentage}%`}
-                      {!participant.share_percentage && expense.spread_type === 'equal' && 
-                        `${(100 / expense.expense_participants.length).toFixed(1)}%`
-                      }
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {currencySymbol}{" "}
-                      {participant.share_amount?.toFixed(2) || 
-                        (expense.amount / expense.expense_participants.length).toFixed(2)
-                      }
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {expense.expense_participants.map((participant) => {
+                  const shareAmount = calculateShareAmount(participant);
+                  return (
+                    <TableRow key={participant.user_id}>
+                      <TableCell>{participant.participant_profile?.display_name}</TableCell>
+                      <TableCell className="text-right">
+                        {participant.share_percentage !== null 
+                          ? `${participant.share_percentage}%`
+                          : expense.spread_type === 'equal' 
+                            ? `${(100 / expense.expense_participants.length).toFixed(1)}%`
+                            : '-'
+                        }
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {currencySymbol} {shareAmount.toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
