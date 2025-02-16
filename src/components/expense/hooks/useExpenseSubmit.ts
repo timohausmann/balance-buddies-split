@@ -101,15 +101,28 @@ export function useExpenseSubmit({
 
     if (deleteError) throw deleteError;
 
+    const totalAmount = parseFloat(data.amount);
+    const participants = data.participantIds.map(userId => {
+      const share = data.participantShares[userId] || (100 / data.participantIds.length);
+      const amount = data.spreadType === 'amount' 
+        ? share 
+        : (totalAmount * share) / 100;
+      
+      return {
+        expense_id: expenseToEdit!.id,
+        user_id: userId,
+        share_percentage: data.spreadType === 'amount' 
+          ? (share * 100) / totalAmount 
+          : share,
+        share_amount: data.spreadType === 'percentage' 
+          ? (totalAmount * share) / 100 
+          : share
+      };
+    });
+
     const { error: participantsError } = await supabase
       .from('expense_participants')
-      .insert(
-        data.participantIds.map(userId => ({
-          expense_id: expenseToEdit!.id,
-          user_id: userId,
-          share_percentage: data.participantShares[userId] || (100 / data.participantIds.length)
-        }))
-      );
+      .insert(participants);
 
     if (participantsError) throw participantsError;
 
@@ -138,15 +151,28 @@ export function useExpenseSubmit({
 
     if (expenseError) throw expenseError;
 
+    const totalAmount = parseFloat(data.amount);
+    const participants = data.participantIds.map(userId => {
+      const share = data.participantShares[userId] || (100 / data.participantIds.length);
+      const amount = data.spreadType === 'amount' 
+        ? share 
+        : (totalAmount * share) / 100;
+      
+      return {
+        expense_id: expense.id,
+        user_id: userId,
+        share_percentage: data.spreadType === 'amount' 
+          ? (share * 100) / totalAmount 
+          : share,
+        share_amount: data.spreadType === 'percentage' 
+          ? (totalAmount * share) / 100 
+          : share
+      };
+    });
+
     const { error: participantsError } = await supabase
       .from('expense_participants')
-      .insert(
-        data.participantIds.map(userId => ({
-          expense_id: expense.id,
-          user_id: userId,
-          share_percentage: data.participantShares[userId] || (100 / data.participantIds.length)
-        }))
-      );
+      .insert(participants);
 
     if (participantsError) throw participantsError;
 

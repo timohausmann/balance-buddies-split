@@ -14,24 +14,24 @@ export type Database = {
           created_at: string
           expense_id: string
           id: string
-          share_amount: number | null
-          share_percentage: number | null
+          share_amount: number
+          share_percentage: number
           user_id: string
         }
         Insert: {
           created_at?: string
           expense_id: string
           id?: string
-          share_amount?: number | null
-          share_percentage?: number | null
+          share_amount?: number
+          share_percentage?: number
           user_id: string
         }
         Update: {
           created_at?: string
           expense_id?: string
           id?: string
-          share_amount?: number | null
-          share_percentage?: number | null
+          share_amount?: number
+          share_percentage?: number
           user_id?: string
         }
         Relationships: [
