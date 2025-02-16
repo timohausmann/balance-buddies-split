@@ -1,10 +1,10 @@
-
 import { Switch } from "@/components/ui/switch";
 import { UserRound, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 interface ParticipantRowProps {
   member: {
@@ -109,7 +109,10 @@ export function ParticipantRow({
               max={100}
               step={1}
               disabled={spreadType !== 'percentage'}
-              className="relative flex w-full touch-none select-none items-center"
+              className={cn(
+                "relative flex w-full touch-none select-none items-center",
+                spreadType !== 'percentage' && "opacity-40"
+              )}
             />
           </div>
           <div className="relative w-28 shrink-0">

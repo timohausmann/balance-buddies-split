@@ -1,13 +1,12 @@
 
 import * as React from "react"
+import * as ToastPrimitives from "@radix-ui/react-toast"
+import { cva, type VariantProps } from "class-variance-authority"
+import { X } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-import type {
-  ToastActionElement,
-  ToastProps,
-} from "@/components/ui/toast"
-
-const TOAST_LIMIT = 2  // Increased from 1 to 2 to allow stacking
-const TOAST_REMOVE_DELAY = 3000  // Changed to 3 seconds for better UX
+const TOAST_LIMIT = 2
+const TOAST_REMOVE_DELAY = 3000
 
 type ToasterToast = ToastProps & {
   id: string
@@ -91,8 +90,6 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
       if (toastId) {
         addToRemoveQueue(toastId)
       } else {

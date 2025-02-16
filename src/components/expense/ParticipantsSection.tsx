@@ -31,10 +31,23 @@ export function ParticipantsSection({
   const [participantShares, setParticipantShares] = useState<Record<string, number>>({});
   const [participantAmounts, setParticipantAmounts] = useState<Record<string, number>>({});
 
-  // Initialize shares and amounts when component mounts or spreadType changes
+  // Initialize or update shares and amounts when relevant values change
   useEffect(() => {
     const existingShares = watch("participantShares");
-    if (spreadType === 'equal') {
+    
+    if (Object.keys(existingShares).length > 0) {
+      setParticipantShares(existingShares);
+      
+      const newAmounts = Object.entries(existingShares).reduce((acc: Record<string, number>, [userId, share]) => {
+        if (spreadType === 'percentage') {
+          acc[userId] = (totalAmount * share) / 100;
+        } else if (spreadType === 'amount') {
+          acc[userId] = share;
+        }
+        return acc;
+      }, {});
+      setParticipantAmounts(newAmounts);
+    } else if (spreadType === 'equal') {
       const equalShare = currentParticipants.length > 0 
         ? 100 / currentParticipants.length 
         : 100;
@@ -55,41 +68,6 @@ export function ParticipantsSection({
       setParticipantShares(newShares);
       setParticipantAmounts(newAmounts);
       setValue("participantShares", newShares);
-    } else {
-      // For percentage and amount, initialize from existing values or use equal split
-      const hasExistingValues = Object.keys(existingShares).length > 0;
-      if (hasExistingValues) {
-        setParticipantShares(existingShares);
-        const newAmounts = Object.entries(existingShares).reduce((acc: Record<string, number>, [userId, share]) => {
-          acc[userId] = spreadType === 'percentage' 
-            ? (totalAmount * share) / 100
-            : share;
-          return acc;
-        }, {});
-        setParticipantAmounts(newAmounts);
-      } else {
-        // Initialize with equal split if no existing values
-        const equalShare = currentParticipants.length > 0 
-          ? 100 / currentParticipants.length 
-          : 100;
-        const equalAmount = currentParticipants.length > 0
-          ? totalAmount / currentParticipants.length
-          : totalAmount;
-
-        const newShares = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
-          acc[userId] = equalShare;
-          return acc;
-        }, {});
-
-        const newAmounts = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
-          acc[userId] = equalAmount;
-          return acc;
-        }, {});
-
-        setParticipantShares(newShares);
-        setParticipantAmounts(newAmounts);
-        setValue("participantShares", newShares);
-      }
     }
   }, [spreadType, currentParticipants.length, totalAmount, setValue]);
 
@@ -135,11 +113,13 @@ export function ParticipantsSection({
     const newAmounts = { ...participantAmounts, [userId]: value };
     setParticipantAmounts(newAmounts);
 
-    // Update percentages based on new amounts
+    // Keep percentage consistent
     const newShares = { ...participantShares };
-    newShares[userId] = (value / totalAmount) * 100;
-    setParticipantShares(newShares);
-    setValue("participantShares", newShares);
+    if (totalAmount > 0) {
+      newShares[userId] = (value / totalAmount) * 100;
+      setParticipantShares(newShares);
+      setValue("participantShares", newShares);
+    }
   };
 
   // Calculate total shared amount
