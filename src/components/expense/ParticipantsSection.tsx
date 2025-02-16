@@ -1,4 +1,3 @@
-
 import { UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { FormValues } from "./types";
 import { ParticipantRow } from "./ParticipantRow";
@@ -32,13 +31,18 @@ export function ParticipantsSection({
   const [participantShares, setParticipantShares] = useState<Record<string, number>>({});
   const [participantAmounts, setParticipantAmounts] = useState<Record<string, number>>({});
 
+  // Round up to ensure totals match perfectly
+  const roundUp = (value: number): number => {
+    return Math.ceil(value * 100) / 100;
+  };
+
   // Safely format number to 2 decimal places
   const formatNumber = (num: number | null | undefined): number => {
     if (num === null || num === undefined) return 0;
     return Number(Number(num).toFixed(2));
   };
 
-  // Recalculate equal shares based on current participants and total amount
+  // Calculate equal shares based on current participants and total amount
   const calculateEqualShares = () => {
     if (!currentParticipants.length) return { shares: {}, amounts: {} };
     
@@ -71,16 +75,25 @@ export function ParticipantsSection({
     } else {
       setParticipantShares(existingShares);
       
-      const newAmounts = Object.entries(existingShares).reduce((acc: Record<string, number>, [userId, share]) => {
-        if (spreadType === 'percentage') {
-          acc[userId] = formatNumber((totalAmount * (share || 0)) / 100);
-        } else if (spreadType === 'amount') {
-          acc[userId] = formatNumber(share || 0);
-        }
-        return acc;
-      }, {});
-      
-      setParticipantAmounts(newAmounts);
+      // When switching to amount, keep the current amounts instead of deriving from shares
+      if (spreadType === 'amount') {
+        const currentAmounts = { ...participantAmounts };
+        setParticipantAmounts(currentAmounts);
+        // Update shares based on amounts
+        const newShares = Object.entries(currentAmounts).reduce((acc: Record<string, number>, [userId, amount]) => {
+          acc[userId] = roundUp((amount / totalAmount) * 100);
+          return acc;
+        }, {});
+        setParticipantShares(newShares);
+        setValue("participantShares", newShares);
+      } else {
+        // For percentage, calculate amounts from shares
+        const newAmounts = Object.entries(existingShares).reduce((acc: Record<string, number>, [userId, share]) => {
+          acc[userId] = roundUp((totalAmount * (share || 0)) / 100);
+          return acc;
+        }, {});
+        setParticipantAmounts(newAmounts);
+      }
     }
   }, [spreadType, currentParticipants.length, totalAmount]);
 
@@ -88,7 +101,7 @@ export function ParticipantsSection({
   useEffect(() => {
     if (spreadType === 'percentage') {
       const newAmounts = Object.entries(participantShares).reduce((acc: Record<string, number>, [userId, share]) => {
-        acc[userId] = formatNumber((totalAmount * (share || 0)) / 100);
+        acc[userId] = roundUp((totalAmount * (share || 0)) / 100);
         return acc;
       }, {});
       setParticipantAmounts(newAmounts);
@@ -130,23 +143,23 @@ export function ParticipantsSection({
   };
 
   const handleSharePercentageChange = (userId: string, value: number) => {
-    const formattedValue = formatNumber(value);
+    const formattedValue = roundUp(value);
     const newShares = { ...participantShares, [userId]: formattedValue };
     setParticipantShares(newShares);
     setValue("participantShares", newShares);
 
-    const newAmount = formatNumber((totalAmount * formattedValue) / 100);
+    const newAmount = roundUp((totalAmount * formattedValue) / 100);
     const newAmounts = { ...participantAmounts, [userId]: newAmount };
     setParticipantAmounts(newAmounts);
   };
 
   const handleShareAmountChange = (userId: string, value: number) => {
-    const formattedValue = formatNumber(value);
+    const formattedValue = roundUp(value);
     const newAmounts = { ...participantAmounts, [userId]: formattedValue };
     setParticipantAmounts(newAmounts);
 
     if (totalAmount > 0) {
-      const newPercentage = formatNumber((formattedValue / totalAmount) * 100);
+      const newPercentage = roundUp((formattedValue / totalAmount) * 100);
       const newShares = { ...participantShares, [userId]: newPercentage };
       setParticipantShares(newShares);
       setValue("participantShares", newShares);
@@ -172,8 +185,8 @@ export function ParticipantsSection({
         {groupMembers.map((member) => {
           const isParticipant = currentParticipants.includes(member.user_id);
           const isPayer = paidByUserId === member.user_id;
-          const sharePercentage = formatNumber(participantShares[member.user_id]);
-          const shareAmount = formatNumber(participantAmounts[member.user_id]);
+          const sharePercentage = roundUp(participantShares[member.user_id] || 0);
+          const shareAmount = roundUp(participantAmounts[member.user_id] || 0);
           
           return (
             <ParticipantRow
