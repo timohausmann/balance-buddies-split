@@ -27,6 +27,32 @@ export function useExpenseSubmit({
     try {
       setIsPending(true);
 
+      // Calculate total amount shared
+      const totalAmount = parseFloat(data.amount);
+      let totalShared = 0;
+
+      if (data.spreadType === 'percentage') {
+        totalShared = Object.values(data.participantShares).reduce((sum, share) => sum + share, 0);
+        if (Math.abs(totalShared - 100) > 0.01) {
+          toast({
+            title: "Invalid shares",
+            description: "The sum of all shares must equal 100%",
+            variant: "destructive"
+          });
+          return;
+        }
+      } else if (data.spreadType === 'amount') {
+        totalShared = Object.values(data.participantShares).reduce((sum, amount) => sum + amount, 0);
+        if (Math.abs(totalShared - totalAmount) > 0.01) {
+          toast({
+            title: "Invalid amounts",
+            description: "The sum of all shares must equal the total amount",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
       if (expenseToEdit) {
         await handleUpdate(data);
       } else {

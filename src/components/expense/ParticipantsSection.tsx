@@ -31,8 +31,9 @@ export function ParticipantsSection({
   const [participantShares, setParticipantShares] = useState<Record<string, number>>({});
   const [participantAmounts, setParticipantAmounts] = useState<Record<string, number>>({});
 
-  // Initialize shares and amounts when relevant values change
+  // Initialize shares and amounts when component mounts or spreadType changes
   useEffect(() => {
+    const existingShares = watch("participantShares");
     if (spreadType === 'equal') {
       const equalShare = currentParticipants.length > 0 
         ? 100 / currentParticipants.length 
@@ -54,11 +55,57 @@ export function ParticipantsSection({
       setParticipantShares(newShares);
       setParticipantAmounts(newAmounts);
       setValue("participantShares", newShares);
-    }
-  }, [currentParticipants.length, totalAmount, setValue, spreadType]);
+    } else {
+      // For percentage and amount, initialize from existing values or use equal split
+      const hasExistingValues = Object.keys(existingShares).length > 0;
+      if (hasExistingValues) {
+        setParticipantShares(existingShares);
+        const newAmounts = Object.entries(existingShares).reduce((acc: Record<string, number>, [userId, share]) => {
+          acc[userId] = spreadType === 'percentage' 
+            ? (totalAmount * share) / 100
+            : share;
+          return acc;
+        }, {});
+        setParticipantAmounts(newAmounts);
+      } else {
+        // Initialize with equal split if no existing values
+        const equalShare = currentParticipants.length > 0 
+          ? 100 / currentParticipants.length 
+          : 100;
+        const equalAmount = currentParticipants.length > 0
+          ? totalAmount / currentParticipants.length
+          : totalAmount;
 
+        const newShares = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
+          acc[userId] = equalShare;
+          return acc;
+        }, {});
+
+        const newAmounts = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
+          acc[userId] = equalAmount;
+          return acc;
+        }, {});
+
+        setParticipantShares(newShares);
+        setParticipantAmounts(newAmounts);
+        setValue("participantShares", newShares);
+      }
+    }
+  }, [spreadType, currentParticipants.length, totalAmount, setValue]);
+
+  // Update amounts when totalAmount changes
   useEffect(() => {
-    // Select all participants by default when group members change
+    if (spreadType === 'percentage') {
+      const newAmounts = Object.entries(participantShares).reduce((acc: Record<string, number>, [userId, share]) => {
+        acc[userId] = (totalAmount * share) / 100;
+        return acc;
+      }, {});
+      setParticipantAmounts(newAmounts);
+    }
+  }, [totalAmount, spreadType, participantShares]);
+
+  // Handle participant selection
+  useEffect(() => {
     if (groupMembers.length > 0 && currentParticipants.length === 0) {
       setValue("participantIds", groupMembers.map(member => member.user_id));
     }

@@ -38,8 +38,10 @@ export function useExpenseFormState({
       paidByUserId: expenseToEdit?.paid_by_user_id || '',
       participantIds: expenseToEdit?.expense_participants.map(p => p.user_id) || [],
       participantShares: expenseToEdit?.expense_participants.reduce((acc: Record<string, number>, p) => {
-        if (p.share_percentage !== null) {
+        if (expenseToEdit.spread_type === 'percentage' && p.share_percentage !== undefined) {
           acc[p.user_id] = p.share_percentage;
+        } else if (expenseToEdit.spread_type === 'amount' && p.share_amount !== undefined) {
+          acc[p.user_id] = p.share_amount;
         }
         return acc;
       }, {}) || {},
