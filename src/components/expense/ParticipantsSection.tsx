@@ -1,3 +1,4 @@
+
 import { UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { FormValues } from "./types";
 import { ParticipantRow } from "./ParticipantRow";
@@ -31,101 +32,127 @@ export function ParticipantsSection({
   const [participantShares, setParticipantShares] = useState<Record<string, number>>({});
   const [participantAmounts, setParticipantAmounts] = useState<Record<string, number>>({});
 
-  // Initialize or update shares and amounts when relevant values change
+  // Recalculate equal shares based on current participants and total amount
+  const calculateEqualShares = () => {
+    if (currentParticipants.length === 0) return { shares: {}, amounts: {} };
+    
+    const equalShare = Number((100 / currentParticipants.length).toFixed(2));
+    const equalAmount = Number((totalAmount / currentParticipants.length).toFixed(2));
+    
+    const shares = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
+      acc[userId] = equalShare;
+      return acc;
+    }, {});
+    
+    const amounts = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
+      acc[userId] = equalAmount;
+      return acc;
+    }, {});
+    
+    return { shares, amounts };
+  };
+
+  // Initialize or update state based on spreadType changes
   useEffect(() => {
     const existingShares = watch("participantShares");
-    
-    if (Object.keys(existingShares).length > 0) {
+    const hasExistingValues = Object.keys(existingShares).length > 0;
+
+    if (spreadType === 'equal' || !hasExistingValues) {
+      const { shares, amounts } = calculateEqualShares();
+      setParticipantShares(shares);
+      setParticipantAmounts(amounts);
+      setValue("participantShares", shares);
+    } else {
+      // For percentage and amount, maintain existing values
       setParticipantShares(existingShares);
       
       const newAmounts = Object.entries(existingShares).reduce((acc: Record<string, number>, [userId, share]) => {
         if (spreadType === 'percentage') {
-          acc[userId] = (totalAmount * share) / 100;
+          acc[userId] = Number(((totalAmount * share) / 100).toFixed(2));
         } else if (spreadType === 'amount') {
-          acc[userId] = share;
+          acc[userId] = Number(share.toFixed(2));
         }
         return acc;
       }, {});
+      
       setParticipantAmounts(newAmounts);
-    } else if (spreadType === 'equal') {
-      const equalShare = currentParticipants.length > 0 
-        ? 100 / currentParticipants.length 
-        : 100;
-      const equalAmount = currentParticipants.length > 0
-        ? totalAmount / currentParticipants.length
-        : totalAmount;
-
-      const newShares = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
-        acc[userId] = equalShare;
-        return acc;
-      }, {});
-
-      const newAmounts = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
-        acc[userId] = equalAmount;
-        return acc;
-      }, {});
-
-      setParticipantShares(newShares);
-      setParticipantAmounts(newAmounts);
-      setValue("participantShares", newShares);
     }
-  }, [spreadType, currentParticipants.length, totalAmount, setValue]);
+  }, [spreadType, currentParticipants.length, totalAmount]);
 
-  // Update amounts when totalAmount changes
+  // Update amounts when total amount changes (only for percentage spread type)
   useEffect(() => {
     if (spreadType === 'percentage') {
       const newAmounts = Object.entries(participantShares).reduce((acc: Record<string, number>, [userId, share]) => {
-        acc[userId] = (totalAmount * share) / 100;
+        acc[userId] = Number(((totalAmount * share) / 100).toFixed(2));
         return acc;
       }, {});
       setParticipantAmounts(newAmounts);
     }
   }, [totalAmount, spreadType, participantShares]);
 
-  // Handle participant selection
+  // Initialize participants if empty
   useEffect(() => {
     if (groupMembers.length > 0 && currentParticipants.length === 0) {
       setValue("participantIds", groupMembers.map(member => member.user_id));
     }
   }, [groupMembers, currentParticipants.length, setValue]);
 
-  if (!groupMembers.length) {
-    return null;
-  }
+  // Set default payer if none selected
+  useEffect(() => {
+    if (currentParticipants.length > 0 && !paidByUserId) {
+      setValue("paidByUserId", currentParticipants[0]);
+    }
+  }, [currentParticipants, paidByUserId, setValue]);
 
-  // Set first participant as payer if no payer is selected
-  if (currentParticipants.length > 0 && !paidByUserId) {
-    setValue("paidByUserId", currentParticipants[0]);
-  }
+  const handleParticipantToggle = (userId: string, checked: boolean) => {
+    const newParticipants = checked 
+      ? [...currentParticipants, userId]
+      : currentParticipants.filter(id => id !== userId);
+    
+    setValue("participantIds", newParticipants);
+
+    if (spreadType === 'equal') {
+      const { shares, amounts } = calculateEqualShares();
+      setParticipantShares(shares);
+      setParticipantAmounts(amounts);
+      setValue("participantShares", shares);
+    }
+
+    if (!checked && paidByUserId === userId) {
+      setValue("paidByUserId", currentParticipants[0] || "");
+    }
+  };
 
   const handleSharePercentageChange = (userId: string, value: number) => {
-    const newShares = { ...participantShares, [userId]: value };
+    const formattedValue = Number(value.toFixed(2));
+    const newShares = { ...participantShares, [userId]: formattedValue };
     setParticipantShares(newShares);
     setValue("participantShares", newShares);
 
-    // Update amounts based on new percentages
-    const newAmounts = { ...participantAmounts };
-    newAmounts[userId] = (totalAmount * value) / 100;
+    const newAmount = Number(((totalAmount * formattedValue) / 100).toFixed(2));
+    const newAmounts = { ...participantAmounts, [userId]: newAmount };
     setParticipantAmounts(newAmounts);
   };
 
   const handleShareAmountChange = (userId: string, value: number) => {
-    const newAmounts = { ...participantAmounts, [userId]: value };
+    const formattedValue = Number(value.toFixed(2));
+    const newAmounts = { ...participantAmounts, [userId]: formattedValue };
     setParticipantAmounts(newAmounts);
 
-    // Keep percentage consistent
-    const newShares = { ...participantShares };
     if (totalAmount > 0) {
-      newShares[userId] = (value / totalAmount) * 100;
+      const newPercentage = Number(((formattedValue / totalAmount) * 100).toFixed(2));
+      const newShares = { ...participantShares, [userId]: newPercentage };
       setParticipantShares(newShares);
       setValue("participantShares", newShares);
     }
   };
 
-  // Calculate total shared amount
+  // Calculate total shared amount and check if balanced
   const totalSharedAmount = Object.values(participantAmounts).reduce((sum, amount) => sum + amount, 0);
-  const difference = totalAmount - totalSharedAmount;
-  const isBalanced = Math.abs(difference) < 0.01; // Account for floating point precision
+  const difference = Number((totalAmount - totalSharedAmount).toFixed(2));
+  const isBalanced = Math.abs(difference) < 0.01;
+
+  if (!groupMembers.length) return null;
 
   return (
     <div className="space-y-4">
@@ -146,28 +173,12 @@ export function ParticipantsSection({
               member={member}
               isParticipant={isParticipant}
               isPayer={isPayer}
-              onParticipantToggle={(checked) => {
-                setValue(
-                  "participantIds",
-                  checked
-                    ? [...currentParticipants, member.user_id]
-                    : currentParticipants.filter(id => id !== member.user_id)
-                );
-                if (!checked && isPayer) {
-                  setValue("paidByUserId", "");
-                }
-              }}
-              onPayerSelect={() => {
-                setValue("paidByUserId", member.user_id);
-              }}
+              onParticipantToggle={(checked) => handleParticipantToggle(member.user_id, checked)}
+              onPayerSelect={() => setValue("paidByUserId", member.user_id)}
               sharePercentage={sharePercentage}
               shareAmount={shareAmount}
-              onSharePercentageChange={(value) => {
-                handleSharePercentageChange(member.user_id, value);
-              }}
-              onShareAmountChange={(value) => {
-                handleShareAmountChange(member.user_id, value);
-              }}
+              onSharePercentageChange={(value) => handleSharePercentageChange(member.user_id, value)}
+              onShareAmountChange={(value) => handleShareAmountChange(member.user_id, value)}
               totalParticipants={currentParticipants.length}
               totalAmount={totalAmount}
               spreadType={spreadType}
