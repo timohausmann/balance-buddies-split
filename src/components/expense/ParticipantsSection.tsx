@@ -5,6 +5,7 @@ import { Wallet } from "lucide-react";
 import { useState, useEffect } from "react";
 import { SplitTypeRow } from "./SplitTypeRow";
 import { Check, AlertTriangle } from "lucide-react";
+import { getCurrencySymbol } from "@/lib/currencies";
 
 interface ParticipantsSectionProps {
   groupMembers: Array<{
@@ -28,36 +29,19 @@ export function ParticipantsSection({
   const currentParticipants = (watch("participants") || []).map(p => p.user_id);
   const paidByUserId = watch("paidByUserId");
   const spreadType = watch("spreadType") || 'equal';
+  const currency = watch("currency");
 
   // Round up to ensure totals match perfectly
   const roundUp = (value: number): number => {
-    return Math.ceil(value * 100) / 100;
+    return value;
+    //return Math.ceil(value * 100) / 100;
   };
+  
 
   // Safely format number to 2 decimal places
   const formatNumber = (num: number | null | undefined): number => {
     if (num === null || num === undefined) return 0;
     return Number(Number(num).toFixed(2));
-  };
-
-  // Calculate equal shares based on current participants and total amount
-  const calculateEqualShares = () => {
-    if (!currentParticipants.length) return { shares: {}, amounts: {} };
-    
-    const equalShare = formatNumber(100 / currentParticipants.length);
-    const equalAmount = formatNumber(totalAmount / currentParticipants.length);
-    
-    const shares = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
-      acc[userId] = equalShare;
-      return acc;
-    }, {});
-    
-    const amounts = currentParticipants.reduce((acc: Record<string, number>, userId: string) => {
-      acc[userId] = equalAmount;
-      return acc;
-    }, {});
-    
-    return { shares, amounts };
   };
 
   // Initialize or update state based on spreadType changes
@@ -93,6 +77,7 @@ export function ParticipantsSection({
   }, [spreadType, currentParticipants.length, totalAmount]);
 
   // Initialize participants if empty
+  /*
   useEffect(() => {
     if (groupMembers.length > 0 && (!currentParticipants || currentParticipants.length === 0)) {
       const initialParticipants = groupMembers.map(member => ({
@@ -103,6 +88,7 @@ export function ParticipantsSection({
       setValue("participants", initialParticipants);
     }
   }, [groupMembers, currentParticipants, setValue, totalAmount]);
+  */
 
   // Set default payer if none selected
   useEffect(() => {
@@ -197,6 +183,7 @@ export function ParticipantsSection({
               totalParticipants={currentParticipants.length}
               totalAmount={totalAmount}
               spreadType={spreadType}
+              currency={currency}
             />
           );
         })}
@@ -214,7 +201,7 @@ export function ParticipantsSection({
           <>
             <AlertTriangle className="h-4 w-4" />
             <p className="text-sm">
-              Shared amounts {difference > 0 ? 'under' : 'over'} by {Math.abs(difference).toFixed(2)} €
+              Shared amounts {difference > 0 ? 'under' : 'over'} by {Math.abs(difference).toFixed(2)} {getCurrencySymbol(currency)}
             </p>
           </>
         )}

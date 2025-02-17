@@ -5,6 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { getCurrencySymbol } from "@/lib/currencies";
 
 interface ParticipantRowProps {
   member: {
@@ -25,6 +26,7 @@ interface ParticipantRowProps {
   totalParticipants: number;
   totalAmount: number;
   spreadType: string;
+  currency: string;
 }
 
 export function ParticipantRow({
@@ -40,6 +42,7 @@ export function ParticipantRow({
   totalParticipants,
   totalAmount,
   spreadType,
+  currency,
 }: ParticipantRowProps) {
   const [localShare, setLocalShare] = useState(sharePercentage);
   const [localAmount, setLocalAmount] = useState(shareAmount);
@@ -140,7 +143,7 @@ export function ParticipantRow({
               className="pr-8"
             />
             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500">
-              €
+              {getCurrencySymbol(currency)}
             </span>
           </div>
         </>

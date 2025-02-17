@@ -26,10 +26,13 @@ export function useExpenseForm({
   });
 
   const { groups, groupOptions } = useGroupData();
-  
-  // shouldnt we pass in selectedGroup here to populate the default values?
+
+  const selectedGroup = groupId 
+    ? groups?.find(g => g.id === groupId)
+    : groups?.find(g => g.id === formState.watch('groupId'));
+
   const formState = useExpenseFormState({
-    groupId,
+    selectedGroup,
     expenseToEdit,
   });
 
@@ -38,10 +41,6 @@ export function useExpenseForm({
     onSuccess,
     currentUserId: currentUser?.id
   });
-
-  const selectedGroup = groupId 
-    ? groups?.find(g => g.id === groupId)
-    : groups?.find(g => g.id === formState.watch('groupId'));
 
   return {
     ...formState,
