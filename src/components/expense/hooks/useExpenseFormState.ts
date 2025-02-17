@@ -1,59 +1,26 @@
 
 import { useForm } from "react-hook-form";
 import { FormValues } from "../types";
-
+import { Expense } from "@/types";
 interface UseExpenseFormStateProps {
-  expenseToEdit?: {
-    id: string;
-    title: string;
-    amount: number;
-    currency: string;
-    spread_type: string;
-    description?: string;
-    paid_by_user_id: string;
-    group_id: string;
-    expense_date: string;
-    expense_participants: Array<{
-      user_id: string;
-      share_percentage?: number;
-      share_amount?: number;
-    }>;
-  };
-  defaultCurrency: string;
+  expenseToEdit?: Expense;
   groupId?: string;
 }
 
 export function useExpenseFormState({
   expenseToEdit,
-  defaultCurrency,
   groupId,
 }: UseExpenseFormStateProps) {
-  // Initialize participant shares based on the expense type
-  const initialParticipantShares = expenseToEdit?.expense_participants.reduce((acc: Record<string, number>, p) => {
-    if (expenseToEdit.spread_type === 'percentage' && p.share_percentage !== undefined) {
-      acc[p.user_id] = p.share_percentage;
-    } else if (expenseToEdit.spread_type === 'amount' && p.share_amount !== undefined) {
-      acc[p.user_id] = p.share_amount;
-    } else if (p.share_percentage !== undefined) {
-      // Fallback to percentage if available
-      acc[p.user_id] = p.share_percentage;
-    } else if (p.share_amount !== undefined) {
-      // Fallback to amount if available
-      acc[p.user_id] = p.share_amount;
-    }
-    return acc;
-  }, {}) || {};
 
   const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm<FormValues>({
     defaultValues: {
       title: expenseToEdit?.title || '',
       amount: expenseToEdit?.amount.toString() || '',
-      currency: expenseToEdit?.currency || defaultCurrency,
+      currency: expenseToEdit?.currency || '',
       spreadType: expenseToEdit?.spread_type || 'equal',
       description: expenseToEdit?.description || '',
       paidByUserId: expenseToEdit?.paid_by_user_id || '',
-      participantIds: expenseToEdit?.expense_participants.map(p => p.user_id) || [],
-      participantShares: initialParticipantShares,
+      participants: expenseToEdit?.expense_participants || [],
       groupId: expenseToEdit?.group_id || groupId || '',
       expenseDate: expenseToEdit?.expense_date 
         ? new Date(expenseToEdit.expense_date).toISOString().slice(0, 16)

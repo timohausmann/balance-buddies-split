@@ -4,32 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useExpenseFormState } from "./useExpenseFormState";
 import { useExpenseSubmit } from "./useExpenseSubmit";
 import { useGroupData } from "./useGroupData";
+import { Expense } from "@/types";
 
 interface UseExpenseFormProps {
   groupId?: string;
-  defaultCurrency: string;
   onSuccess: () => void;
-  expenseToEdit?: {
-    id: string;
-    title: string;
-    amount: number;
-    currency: string;
-    spread_type: string;
-    description?: string;
-    paid_by_user_id: string;
-    group_id: string;
-    expense_date: string;
-    expense_participants: Array<{
-      user_id: string;
-      share_percentage?: number;
-      share_amount?: number;
-    }>;
-  };
+  expenseToEdit?: Expense;
 }
 
 export function useExpenseForm({
   groupId,
-  defaultCurrency,
   onSuccess,
   expenseToEdit
 }: UseExpenseFormProps) {
@@ -43,10 +27,10 @@ export function useExpenseForm({
 
   const { groups, groupOptions } = useGroupData();
   
+  // shouldnt we pass in selectedGroup here to populate the default values?
   const formState = useExpenseFormState({
+    groupId,
     expenseToEdit,
-    defaultCurrency,
-    groupId
   });
 
   const { handleSubmit: submitHandler, isPending } = useExpenseSubmit({

@@ -3,8 +3,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EditGroupForm } from "@/components/EditGroupForm";
-import { CreateExpenseForm } from "@/components/CreateExpenseForm";
 import { Group } from "@/types";
+import { ExpenseForm } from "@/components/ExpenseForm";
 
 interface GroupDialogsProps {
   group: Group | undefined;
@@ -98,10 +98,8 @@ export const GroupDialogs = ({
             <DialogTitle>Add Expense</DialogTitle>
           </DialogHeader>
           {group && (
-            <CreateExpenseForm
+            <ExpenseForm
               groupId={group.id}
-              groupMembers={group.group_members}
-              defaultCurrency={group.default_currency}
               onSuccess={onExpenseSuccess}
             />
           )}

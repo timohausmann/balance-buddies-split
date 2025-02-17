@@ -1,41 +1,21 @@
 
 import { Button } from "./ui/button";
-import { FormValues, GroupMember } from "./expense/types";
 import { TitleRow } from "./expense/TitleRow";
 import { AmountCurrencyRow } from "./expense/AmountCurrencyRow";
 import { AdditionalDetailsSection } from "./expense/AdditionalDetailsSection";
 import { useExpenseForm } from "./expense/hooks/useExpenseForm";
-
-interface CreateExpenseFormProps {
+import { Expense } from "../types";
+interface ExpenseFormProps {
   groupId?: string;
-  groupMembers: GroupMember[];
-  defaultCurrency: string;
   onSuccess: () => void;
-  expenseToEdit?: {
-    id: string;
-    title: string;
-    amount: number;
-    currency: string;
-    spread_type: string;
-    description?: string;
-    paid_by_user_id: string;
-    group_id: string;
-    expense_date: string;
-    expense_participants: Array<{
-      user_id: string;
-      share_percentage?: number;
-      share_amount?: number;
-    }>;
-  };
+  expenseToEdit?: Expense;
 }
 
-export function CreateExpenseForm({ 
+export function ExpenseForm({ 
   groupId, 
-  groupMembers, 
-  defaultCurrency, 
   onSuccess,
   expenseToEdit
-}: CreateExpenseFormProps) {
+}: ExpenseFormProps) {
   const {
     register,
     handleSubmit,
@@ -48,7 +28,6 @@ export function CreateExpenseForm({
     onSubmit
   } = useExpenseForm({
     groupId,
-    defaultCurrency,
     onSuccess,
     expenseToEdit
   });

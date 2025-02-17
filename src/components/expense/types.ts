@@ -1,3 +1,4 @@
+import { ExpenseParticipant } from "@/types";
 
 export interface FormValues {
   title: string;
@@ -6,8 +7,7 @@ export interface FormValues {
   spreadType: string;
   description?: string;
   paidByUserId: string;
-  participantIds: string[];
-  participantShares: Record<string, number>;
+  participants: ExpenseParticipant[];
   groupId: string;
   expenseDate: string;
 }

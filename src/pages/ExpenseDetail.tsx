@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { CreateExpenseForm } from "@/components/CreateExpenseForm";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Trash2, Edit, ChevronLeft } from "lucide-react";
 import { format } from "date-fns";
 import { getCurrencySymbol } from "@/lib/currencies";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ExpenseForm } from "@/components/ExpenseForm";
 
 const ExpenseDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -238,12 +238,10 @@ const ExpenseDetail = () => {
             <DialogHeader className="sticky top-0 bg-white z-10 pb-4">
               <DialogTitle>Edit Expense</DialogTitle>
             </DialogHeader>
-            <CreateExpenseForm
+            <ExpenseForm
               groupId={expense.group_id}
-              groupMembers={expense.groups?.group_members || []}
-              defaultCurrency={expense.groups?.default_currency || 'EUR'}
-              onSuccess={handleEditSuccess}
               expenseToEdit={expense}
+              onSuccess={handleEditSuccess}
             />
           </DialogContent>
         </Dialog>

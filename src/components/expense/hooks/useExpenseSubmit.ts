@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,30 +26,25 @@ export function useExpenseSubmit({
     try {
       setIsPending(true);
 
-      // Calculate total amount shared
+      // Validate total shares
       const totalAmount = parseFloat(data.amount);
-      let totalShared = 0;
+      const totalShared = data.participants.reduce((sum, p) => 
+        sum + (data.spreadType === 'amount' ? p.share_amount : p.share_percentage), 0
+      );
 
-      if (data.spreadType === 'percentage') {
-        totalShared = Object.values(data.participantShares).reduce((sum, share) => sum + share, 0);
-        if (Math.abs(totalShared - 100) > 0.01) {
-          toast({
-            title: "Invalid shares",
-            description: "The sum of all shares must equal 100%",
-            variant: "destructive"
-          });
-          return;
-        }
-      } else if (data.spreadType === 'amount') {
-        totalShared = Object.values(data.participantShares).reduce((sum, amount) => sum + amount, 0);
-        if (Math.abs(totalShared - totalAmount) > 0.01) {
-          toast({
-            title: "Invalid amounts",
-            description: "The sum of all shares must equal the total amount",
-            variant: "destructive"
-          });
-          return;
-        }
+      const isValid = data.spreadType === 'amount' 
+        ? Math.abs(totalShared - totalAmount) < 0.01
+        : Math.abs(totalShared - 100) < 0.01;
+
+      if (!isValid) {
+        toast({
+          title: "Invalid shares",
+          description: data.spreadType === 'amount' 
+            ? "The sum of all shares must equal the total amount"
+            : "The sum of all shares must equal 100%",
+          variant: "destructive"
+        });
+        return;
       }
 
       if (expenseToEdit) {
@@ -94,6 +88,7 @@ export function useExpenseSubmit({
 
     if (expenseError) throw expenseError;
 
+    // Delete existing participants
     const { error: deleteError } = await supabase
       .from('expense_participants')
       .delete()
@@ -101,28 +96,15 @@ export function useExpenseSubmit({
 
     if (deleteError) throw deleteError;
 
-    const totalAmount = parseFloat(data.amount);
-    const participants = data.participantIds.map(userId => {
-      const share = data.participantShares[userId] || (100 / data.participantIds.length);
-      const amount = data.spreadType === 'amount' 
-        ? share 
-        : (totalAmount * share) / 100;
-      
-      return {
-        expense_id: expenseToEdit!.id,
-        user_id: userId,
-        share_percentage: data.spreadType === 'amount' 
-          ? (share * 100) / totalAmount 
-          : share,
-        share_amount: data.spreadType === 'percentage' 
-          ? (totalAmount * share) / 100 
-          : share
-      };
-    });
-
+    // Insert new participants with their shares
     const { error: participantsError } = await supabase
       .from('expense_participants')
-      .insert(participants);
+      .insert(data.participants.map(p => ({
+        expense_id: expenseToEdit!.id,
+        user_id: p.user_id,
+        share_percentage: p.share_percentage,
+        share_amount: p.share_amount
+      })));
 
     if (participantsError) throw participantsError;
 
@@ -151,28 +133,15 @@ export function useExpenseSubmit({
 
     if (expenseError) throw expenseError;
 
-    const totalAmount = parseFloat(data.amount);
-    const participants = data.participantIds.map(userId => {
-      const share = data.participantShares[userId] || (100 / data.participantIds.length);
-      const amount = data.spreadType === 'amount' 
-        ? share 
-        : (totalAmount * share) / 100;
-      
-      return {
-        expense_id: expense.id,
-        user_id: userId,
-        share_percentage: data.spreadType === 'amount' 
-          ? (share * 100) / totalAmount 
-          : share,
-        share_amount: data.spreadType === 'percentage' 
-          ? (totalAmount * share) / 100 
-          : share
-      };
-    });
-
+    // Insert participants with their shares
     const { error: participantsError } = await supabase
       .from('expense_participants')
-      .insert(participants);
+      .insert(data.participants.map(p => ({
+        expense_id: expense.id,
+        user_id: p.user_id,
+        share_percentage: p.share_percentage,
+        share_amount: p.share_amount
+      })));
 
     if (participantsError) throw participantsError;
 

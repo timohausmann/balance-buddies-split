@@ -11,6 +11,7 @@ export function useGroupData() {
         .select(`
           id,
           title,
+          default_currency,
           group_members (
             user_id,
             profiles (
