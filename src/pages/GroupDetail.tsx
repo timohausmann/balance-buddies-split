@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { useParams, useNavigate } from "react-router-dom";
@@ -20,6 +19,7 @@ const GroupDetail = () => {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { data: group, refetch: refetchGroup } = useQuery({
     queryKey: ['group', id],
@@ -45,7 +45,8 @@ const GroupDetail = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!id
+    enabled: !!id,
+    onSuccess: () => setIsLoading(false)
   });
 
   const { data: expenses, refetch: refetchExpenses } = useQuery({
@@ -75,7 +76,8 @@ const GroupDetail = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!id
+    enabled: !!id,
+    onSuccess: () => setIsLoading(false)
   });
 
   const { data: currentUser } = useQuery({
@@ -146,15 +148,29 @@ const GroupDetail = () => {
   return (
     <MainLayout>
       <div className="max-w-2xl mx-auto">
-        {group && (
-          <GroupHeader
-            group={group}
-            expenses={expenses}
-            isAdmin={isAdmin}
-            onEditClick={() => setIsEditOpen(true)}
-            onShareClick={() => setIsShareOpen(true)}
-            onDeleteClick={() => setIsDeleteDialogOpen(true)}
-          />
+        {isLoading ? (
+          <>
+            <header className="mb-8">
+              <Skeleton className="h-9 w-64 mb-2 bg-neutral-100" />
+              <Skeleton className="h-20 w-full bg-neutral-100" />
+            </header>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-24 w-full bg-neutral-100" />
+              ))}
+            </div>
+          </>
+        ) : (
+          group && (
+            <GroupHeader
+              group={group}
+              expenses={expenses}
+              isAdmin={isAdmin}
+              onEditClick={() => setIsEditOpen(true)}
+              onShareClick={() => setIsShareOpen(true)}
+              onDeleteClick={() => setIsDeleteDialogOpen(true)}
+            />
+          )
         )}
 
         {group && expenses && (
