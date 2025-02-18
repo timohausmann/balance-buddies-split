@@ -1,0 +1,200 @@
+# Project Overview
+
+# Personality
+Help and teach me like a full stack senior developer with a passion for creating beautiful and functional web applications. 
+
+# Project Summary 
+
+This is a web app for managing shared expenses between friends and family.
+
+# Detailed concept
+
+These are the main views: 
+* Home: short greeting and grid list of your groups
+* Group: Group summary and list of all expenses. 
+    * If you are the group owner, you can edit the group title, description, default currency and default spread. They can manage members (copy invite link, remove member) or delete the group. 
+    * All group members can create new expenses. 
+    * Non-admins can leave the group.
+    * There is also a "settle" button that opens an overlay with a settlement summary and how to balance this group. 
+* Expense: Detailed view of the expense. 
+    * If you created the expense, you can edit and delete the expense.
+* Profile: Avatar (placeholder) and the display name.
+* Edit Profile: edit their own profile.
+
+# Current File Structure
+
+.
+├── .cursorrules
+├── .gitignore
+├── README.md
+├── bun.lockb
+├── components.json
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── public
+│   ├── favicon.ico
+│   ├── lovable-uploads
+│   │   └── b27b2dc4-95ee-4819-8c2d-9f097dcf919a.png
+│   ├── og-image.png
+│   └── placeholder.svg
+├── src
+│   ├── App.css
+│   ├── App.tsx
+│   ├── components
+│   │   ├── AddExpenseButton.tsx
+│   │   ├── AuthForm.tsx
+│   │   ├── CreateGroupForm.tsx
+│   │   ├── EditGroupForm.tsx
+│   │   ├── ExpenseCard.tsx
+│   │   ├── ExpenseForm.tsx
+│   │   ├── GroupsList.tsx
+│   │   ├── MainLayout.tsx
+│   │   ├── ProfileView.tsx
+│   │   ├── ProtectedRoute.tsx
+│   │   ├── expense
+│   │   │   ├── AdditionalDetailsSection.tsx
+│   │   │   ├── AmountCurrencyRow.tsx
+│   │   │   ├── DescriptionRow.tsx
+│   │   │   ├── GroupRow.tsx
+│   │   │   ├── PaidByDateRow.tsx
+│   │   │   ├── ParticipantRow.tsx
+│   │   │   ├── ParticipantsSection.tsx
+│   │   │   ├── SplitTypeRow.tsx
+│   │   │   ├── TitleAmountSection.tsx
+│   │   │   ├── TitleGroupRow.tsx
+│   │   │   ├── TitleRow.tsx
+│   │   │   ├── hooks
+│   │   │   └── types.ts
+│   │   ├── group
+│   │   │   ├── AddExpenseButton.tsx
+│   │   │   ├── GroupBalanceSummary.tsx
+│   │   │   ├── GroupDialogs.tsx
+│   │   │   ├── GroupExpensesList.tsx
+│   │   │   ├── GroupHeader.tsx
+│   │   │   └── GroupMemberChips.tsx
+│   │   ├── layout
+│   │   │   ├── AppHeader.tsx
+│   │   │   ├── Logo.tsx
+│   │   │   ├── PublicHeader.tsx
+│   │   │   └── types.ts
+│   │   └── ui
+│   │       ├── accordion.tsx
+│   │       ├── alert-dialog.tsx
+│   │       ├── alert.tsx
+│   │       ├── aspect-ratio.tsx
+│   │       ├── avatar.tsx
+│   │       ├── badge.tsx
+│   │       ├── base-select.tsx
+│   │       ├── breadcrumb.tsx
+│   │       ├── button.tsx
+│   │       ├── calendar.tsx
+│   │       ├── card.tsx
+│   │       ├── carousel.tsx
+│   │       ├── chart.tsx
+│   │       ├── checkbox.tsx
+│   │       ├── collapsible.tsx
+│   │       ├── command.tsx
+│   │       ├── context-menu.tsx
+│   │       ├── currency-icon.tsx
+│   │       ├── currency-select.tsx
+│   │       ├── dialog.tsx
+│   │       ├── drawer.tsx
+│   │       ├── dropdown-menu.tsx
+│   │       ├── form.tsx
+│   │       ├── hover-card.tsx
+│   │       ├── input-otp.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── menubar.tsx
+│   │       ├── navigation-menu.tsx
+│   │       ├── pagination.tsx
+│   │       ├── popover.tsx
+│   │       ├── progress.tsx
+│   │       ├── radio-group.tsx
+│   │       ├── resizable.tsx
+│   │       ├── scroll-area.tsx
+│   │       ├── select.tsx
+│   │       ├── separator.tsx
+│   │       ├── sheet.tsx
+│   │       ├── sidebar.tsx
+│   │       ├── skeleton.tsx
+│   │       ├── slider.tsx
+│   │       ├── sonner.tsx
+│   │       ├── switch.tsx
+│   │       ├── table.tsx
+│   │       ├── tabs.tsx
+│   │       ├── textarea.tsx
+│   │       ├── toast.tsx
+│   │       ├── toaster.tsx
+│   │       ├── toggle-group.tsx
+│   │       ├── toggle.tsx
+│   │       ├── tooltip.tsx
+│   │       └── use-toast.ts
+│   ├── hooks
+│   │   ├── use-mobile.tsx
+│   │   └── use-toast.ts
+│   ├── index.css
+│   ├── integrations
+│   │   └── supabase
+│   │       ├── client.ts
+│   │       └── types.ts
+│   ├── lib
+│   │   ├── currencies.ts
+│   │   └── utils.ts
+│   ├── main.tsx
+│   ├── pages
+│   │   ├── EditProfile.tsx
+│   │   ├── ExpenseDetail.tsx
+│   │   ├── GroupDetail.tsx
+│   │   ├── GroupInvite.tsx
+│   │   ├── Groups.tsx
+│   │   ├── Index.tsx
+│   │   ├── Landing.tsx
+│   │   ├── Login.tsx
+│   │   ├── NotFound.tsx
+│   │   ├── Profile.tsx
+│   │   ├── SignUp.tsx
+│   │   └── UserProfile.tsx
+│   ├── types.ts
+│   └── vite-env.d.ts
+├── supabase
+│   └── config.toml
+├── tailwind.config.ts
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+
+# UI Guidelines
+
+* All required fields should be marked with a red asterix and have the "required" html attribute
+* All submit buttons should have a "pending" state (html attribute "disabled", text change)
+
+# Database
+
+The project is using Supabase as database and storage.
+It's using RLS (Row Level Security) to secure the database.
+
+The detailed database schema can be found in the file `/src/integrations/supabase/types.ts`.
+
+Here is the basic database schema:
+* Group: Title, Description, Creation Date, Member Users, Default Currency, Default Spread
+* Group members: Group, User, Is Admin
+* Expense: Title, Sum, Currency, Spread, Participants, Payed by user, Description, Date, Group, Created by User
+* User: Display Name, Email, Groups, Creation Date
+
+There are three Spread options so far:
+* Equal: All participants pay the same equal amount
+* Percentage: Per participant you can define a percentage, for example for two members: 40%, 60%
+* Amount: Per participant you can define the fixed amount, for example for two members 20 €, 25 €
+
+# Tech Stack
+* NextJS
+* Supabase
+* TailwindCSS
+* Shadcn UI
+* TypeScript
+* React
