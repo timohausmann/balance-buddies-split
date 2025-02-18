@@ -8,7 +8,7 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
-  const { data: profile, isLoading } = useQuery({
+  const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -27,7 +27,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <AppHeader displayName={profile?.display_name} isLoading={isLoading} />
+      <AppHeader displayName={profile?.display_name} />
       <main className="container mx-auto px-4 py-8">{children}</main>
     </div>
   );
