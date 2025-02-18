@@ -4,6 +4,7 @@ import { Users } from "lucide-react";
 import { getCurrencySymbol } from "@/lib/currencies";
 import { CurrencyIcon } from "./ui/currency-icon";
 import { Link } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ExpenseCardProps {
   id: string;
@@ -13,6 +14,7 @@ interface ExpenseCardProps {
   date: Date;
   paidBy: string;
   participants: string[];
+  isLoading?: boolean;
 }
 
 export const ExpenseCard = ({
@@ -23,8 +25,32 @@ export const ExpenseCard = ({
   date,
   paidBy,
   participants,
+  isLoading,
 }: ExpenseCardProps) => {
   const currencySymbol = getCurrencySymbol(currency);
+
+  if (isLoading) {
+    return (
+      <div className="card p-4 mb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-10 w-10" />
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </div>
+          <div className="text-right space-y-2">
+            <Skeleton className="h-6 w-24" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        </div>
+        <div className="mt-3">
+          <Skeleton className="h-4 w-24" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Link

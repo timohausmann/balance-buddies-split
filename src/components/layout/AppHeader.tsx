@@ -11,6 +11,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AppHeaderProps {
   displayName?: string;
@@ -47,7 +48,9 @@ export const AppHeader = ({ displayName }: AppHeaderProps) => {
                 <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center">
                   <UserIcon className="h-4 w-4" />
                 </div>
-                <span className="hidden md:inline">{displayName}</span>
+                <span className="hidden md:inline">
+                  {displayName ? displayName : <Skeleton className="h-4 w-24" />}
+                </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white">

@@ -4,12 +4,36 @@ import { Group } from "@/components/layout/types";
 import { ChevronRight } from "lucide-react";
 import { getCurrencySymbol } from "@/lib/currencies";
 import { CurrencyIcon } from "./ui/currency-icon";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface GroupsListProps {
   groups?: Group[];
+  isLoading?: boolean;
 }
 
-export function GroupsList({ groups = [] }: GroupsListProps) {
+export function GroupsList({ groups = [], isLoading }: GroupsListProps) {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {[1, 2, 3, 4].map((n) => (
+          <div key={n} className="card p-6 space-y-4">
+            <div className="flex justify-between items-start">
+              <div className="flex gap-4 w-full">
+                <Skeleton className="h-8 w-8" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </div>
+              <Skeleton className="h-5 w-5" />
+            </div>
+            <Skeleton className="h-4 w-24" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {groups.map((group) => (
@@ -25,7 +49,7 @@ export function GroupsList({ groups = [] }: GroupsListProps) {
                 <h3 className="text-xl font-semibold">{group.title}</h3>
                 {group.description && (
                   <div className="relative">
-                    <p className="text-sm text-neutral-500 line-clamp-2 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-8 after:bg-gradient-to-t after:from-white after:to-transparent">
+                    <p className="text-sm text-neutral-500 line-clamp-2">
                       {group.description}
                     </p>
                   </div>
