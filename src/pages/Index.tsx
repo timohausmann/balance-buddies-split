@@ -79,7 +79,7 @@ const Index = () => {
           <div>
             <h1 className="text-3xl font-bold text-neutral-900 mb-2">
               {isProfileLoading ? (
-                <Skeleton className="h-9 w-48" />
+                <Skeleton className="h-9 w-48 bg-neutral-200" />
               ) : (
                 profile?.display_name ? `Hello, ${profile.display_name}` : "Hello!"
               )}
@@ -107,7 +107,7 @@ const Index = () => {
               <h2 className="text-xl font-semibold mb-4">Your Groups</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <Skeleton key={i} className="h-[144px]" />
+                  <Skeleton key={i} className="h-[144px] bg-neutral-200" />
                 ))}
               </div>
             </div>
