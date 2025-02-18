@@ -14,9 +14,30 @@ interface GroupExpensesListProps {
     }>;
   }>;
   onAddExpenseClick: () => void;
+  isLoading?: boolean;
 }
 
-export const GroupExpensesList = ({ expenses, onAddExpenseClick }: GroupExpensesListProps) => {
+export const GroupExpensesList = ({ expenses, onAddExpenseClick, isLoading }: GroupExpensesListProps) => {
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <ExpenseCard
+            key={i}
+            id=""
+            title=""
+            amount={0}
+            currency=""
+            date={new Date()}
+            paidBy=""
+            participants={[]}
+            isLoading={true}
+          />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {expenses.length === 0 ? (

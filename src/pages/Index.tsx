@@ -23,7 +23,7 @@ const Index = () => {
     },
   });
 
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) throw new Error('No session');
@@ -40,7 +40,7 @@ const Index = () => {
     enabled: !!session?.user?.id,
   });
 
-  const { data: groups, refetch } = useQuery({
+  const { data: groups, isLoading: isGroupsLoading } = useQuery({
     queryKey: ['groups', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) throw new Error('No session');
@@ -77,7 +77,11 @@ const Index = () => {
         <header className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-              {profile?.display_name ? `Hello, ${profile.display_name}` : "Hello!"}
+              {isProfileLoading ? (
+                <div className="h-9 w-48 bg-neutral-100 rounded animate-pulse" />
+              ) : (
+                profile?.display_name ? `Hello, ${profile.display_name}` : "Hello!"
+              )}
             </h1>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -97,14 +101,14 @@ const Index = () => {
         </header>
 
         <div className="space-y-8">
-          {groups?.length === 0 ? (
+          {groups?.length === 0 && !isGroupsLoading ? (
             <div className="text-center py-8 text-neutral-600">
               Start off by creating your first group
             </div>
           ) : (
             <div>
               <h2 className="text-xl font-semibold mb-4">Your Groups</h2>
-              <GroupsList groups={visibleGroups || []} />
+              <GroupsList groups={visibleGroups || []} isLoading={isGroupsLoading} />
               {groups && groups.length > 8 && (
                 <Button
                   variant="ghost"

@@ -15,9 +15,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface AppHeaderProps {
   displayName?: string;
+  isLoading?: boolean;
 }
 
-export const AppHeader = ({ displayName }: AppHeaderProps) => {
+export const AppHeader = ({ displayName, isLoading }: AppHeaderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -49,7 +50,9 @@ export const AppHeader = ({ displayName }: AppHeaderProps) => {
                   <UserIcon className="h-4 w-4" />
                 </div>
                 <span className="hidden md:inline">
-                  {displayName ? displayName : <Skeleton className="h-4 w-24" />}
+                  {isLoading ? (
+                    <Skeleton className="h-4 w-24" />
+                  ) : displayName}
                 </span>
               </Button>
             </DropdownMenuTrigger>
