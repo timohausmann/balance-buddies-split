@@ -42,10 +42,12 @@ export const GroupDialogs = ({
   onCopyInviteLink,
 }: GroupDialogsProps) => {
   const [inviteLink, setInviteLink] = useState<string>("");
+  const [isCreatingInvite, setIsCreatingInvite] = useState(false);
   const { toast } = useToast();
 
   const createInvitation = async () => {
-    if (!group) return;
+    if (!group) return null;
+    setIsCreatingInvite(true);
 
     try {
       const expiryDate = new Date();
@@ -67,20 +69,24 @@ export const GroupDialogs = ({
       setInviteLink(newInviteLink);
       return newInviteLink;
     } catch (error) {
+      console.error('Error creating invitation:', error);
       toast({
         title: "Error",
         description: "Failed to create invitation link. Please try again.",
         variant: "destructive",
       });
       return null;
+    } finally {
+      setIsCreatingInvite(false);
     }
   };
 
   const handleShareOpen = async (open: boolean) => {
     if (open) {
+      setIsShareOpen(true);
       const link = await createInvitation();
-      if (link) {
-        setIsShareOpen(true);
+      if (!link) {
+        setIsShareOpen(false);
       }
     } else {
       setIsShareOpen(false);
@@ -118,8 +124,13 @@ export const GroupDialogs = ({
                 readOnly
                 value={inviteLink}
                 onClick={(e) => e.currentTarget.select()}
+                placeholder={isCreatingInvite ? "Creating invitation link..." : ""}
+                disabled={isCreatingInvite}
               />
-              <Button onClick={() => inviteLink && onCopyInviteLink()}>
+              <Button 
+                onClick={() => inviteLink && onCopyInviteLink()} 
+                disabled={!inviteLink || isCreatingInvite}
+              >
                 Copy
               </Button>
             </div>
