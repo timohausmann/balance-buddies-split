@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,9 +22,8 @@ const ExpenseDetail = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
-  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: expense } = useQuery({
+  const { data: expense, isLoading: isExpenseLoading } = useQuery({
     queryKey: ['expense', id],
     queryFn: async () => {
       if (!id) throw new Error('No expense ID provided');
@@ -108,12 +108,13 @@ const ExpenseDetail = () => {
     queryClient.invalidateQueries({ queryKey: ['expense', id] });
   };
 
-  if (!expense) return null;
+  if (!expense && !isExpenseLoading) return null;
 
-  const isCreator = currentUser?.id === expense.created_by_user_id;
-  const currencySymbol = getCurrencySymbol(expense.currency);
+  const isCreator = currentUser?.id === expense?.created_by_user_id;
+  const currencySymbol = expense ? getCurrencySymbol(expense.currency) : '';
 
   const calculateShareAmount = (participant: any) => {
+    if (!expense) return 0;
     if (expense.spread_type === 'equal') {
       return expense.amount / expense.expense_participants.length;
     } else if (participant.share_percentage) {
@@ -125,13 +126,13 @@ const ExpenseDetail = () => {
   return (
     <MainLayout>
       <div className="max-w-2xl mx-auto">
-        {isLoading ? (
+        {isExpenseLoading ? (
           <div className="space-y-6">
             <Skeleton className="h-9 w-48 bg-neutral-100" />
             <Skeleton className="h-32 w-full bg-neutral-100" />
             <Skeleton className="h-48 w-full bg-neutral-100" />
           </div>
-        ) : (
+        ) : expense && (
           <div>
             <div className="mb-6">
               <Link 
