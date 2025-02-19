@@ -160,7 +160,7 @@ const GroupInvite = () => {
             ) : (
               <div className="space-y-4">
                 <p className="text-neutral-600">
-                  To join this group, please create a free account
+                  To join this group, sign up / register first, then open the link again.
                 </p>
                 <Button asChild className="w-full">
                   <Link to={`/signup?invite=${id}`}>

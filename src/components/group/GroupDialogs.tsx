@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { EditGroupForm } from "@/components/EditGroupForm";
 import { Group } from "@/types";
 import { ExpenseForm } from "@/components/ExpenseForm";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GroupDialogsProps {
   group: Group | undefined;
@@ -37,6 +40,49 @@ export const GroupDialogs = ({
   onDeleteConfirm,
   onCopyInviteLink,
 }: GroupDialogsProps) => {
+
+  const [inviteLink, setInviteLink] = useState<string>("");
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (isShareOpen && !inviteLink) {
+      createInvitation();
+    }
+  }, [isShareOpen]);
+
+  const createInvitation = async () => {
+    if (!group) return null;
+
+    try {
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 2);
+
+      const { data: invitation, error } = await supabase
+        .from('invitations')
+        .insert({
+          group_id: group.id,
+          group_name: group.title,
+          expires_at: expiryDate.toISOString(),
+        })
+        .select('token')
+        .single();
+
+      if (error) throw error;
+
+      const newInviteLink = `${window.location.origin}/invite/${invitation.token}`;
+      setInviteLink(newInviteLink);
+      return newInviteLink;
+    } catch (error) {
+      console.error('Error creating invitation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create invitation link. Please try again.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
   return (
     <>
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -60,12 +106,14 @@ export const GroupDialogs = ({
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-neutral-500">
-              Share this link with friends to invite them to join the group:
+              Share this link with friends to invite them to this group. <br />
+              Link expires in 2 days.
             </p>
             <div className="flex gap-2">
               <Input
                 readOnly
-                value={`${window.location.origin}/invite/${group?.id}`}
+                placeholder="generating link..."
+                value={inviteLink}
                 onClick={(e) => e.currentTarget.select()}
               />
               <Button onClick={onCopyInviteLink}>

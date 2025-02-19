@@ -63,21 +63,6 @@ export function ProfileView({ sessionUserId }: ProfileViewProps) {
           Member since {format(new Date(profile.created_at), 'MMMM yyyy')}
         </p>
       </div>
-
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold mb-4">Shared Groups</h2>
-        
-        {/* Will implement shared groups in the next iteration */}
-        <div className="card p-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-semibold">Sample Group</h3>
-              <p className="text-sm text-neutral-500">4 members</p>
-            </div>
-            <Button variant="outline" size="sm">View Group</Button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
