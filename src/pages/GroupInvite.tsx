@@ -1,21 +1,19 @@
-
 import { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const GroupInvite = () => {
-  const { id } = useParams();
+  const { token } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [group, setGroup] = useState<{ title: string; description: string | null } | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isJoining, setIsJoining] = useState(false);
-  const [isMember, setIsMember] = useState(false);
 
+  // Get session
   const { data: session } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
@@ -24,85 +22,75 @@ const GroupInvite = () => {
     },
   });
 
-  useEffect(() => {
-    const fetchGroup = async () => {
-      const { data, error } = await supabase
-        .from('groups')
-        .select('title, description')
-        .eq('id', id)
-        .single();
+  // Check invitation validity and get group name
+  const { data: groupInfo, isLoading: isChecking } = useQuery({
+    queryKey: ['invitation', token],
+    queryFn: async () => {
+      if (!token) {
+        toast({
+          title: "Invalid Invitation",
+          description: "This invitation link is invalid or has expired.",
+          variant: "destructive",
+        });
+        navigate('/');
+        throw new Error('No token provided');
+      }
+
+      const { data, error } = await supabase.functions.invoke('invite-check', {
+        body: { token }
+      });
 
       if (error) {
         toast({
-          title: "Error",
-          description: "This group doesn't exist or has been deleted.",
+          title: "Invalid Invitation",
+          description: "This invitation link is invalid or has expired.",
           variant: "destructive",
         });
-        return;
+        navigate('/');
+        throw error;
       }
+      return data;
+    },
+    retry: false
+  });
 
-      setGroup(data);
-    };
-
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-
-      if (session) {
-        // Check if user is already a member
-        const { data, error } = await supabase
-          .from('group_members')
-          .select('id')
-          .eq('group_id', id)
-          .eq('user_id', session.user.id)
-          .maybeSingle();
-
-        if (!error && data) {
-          setIsMember(true);
-        }
-      }
-    };
-
-    fetchGroup();
-    checkAuth();
-  }, [id, toast]);
-
-  const handleAcceptInvite = async () => {
-    setIsJoining(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to join a group.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { error } = await supabase
+  // Check if user is already a member
+  const { data: membership, isLoading: isMembershipLoading } = useQuery({
+    queryKey: ['membership', token],
+    queryFn: async () => {
+      if (!session?.user?.id || !groupInfo?.group_id) return null;
+      const { data } = await supabase
         .from('group_members')
-        .insert({
-          group_id: id,
-          user_id: user.id
-        });
+        .select('*')
+        .eq('group_id', groupInfo.group_id)
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!session?.user && !!groupInfo?.group_id
+  });
 
-      if (error) {
-        if (error.code === '23505') { // Unique violation
-          toast({
-            description: "You're already a member of this group.",
-          });
-        } else {
-          throw error;
-        }
-      } else {
-        toast({
-          description: "Successfully joined the group!",
-        });
-        navigate(`/groups/${id}`);
-      }
-    } catch (error: any) {
+  const joinGroup = async () => {
+    if (!token) return;
+
+    try {
+      setIsJoining(true);
+      
+      const { data, error } = await supabase.functions.invoke('invite-accept', {
+        body: { token }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "You've successfully joined the group!",
+      });
+
+      // Navigate to the group (assuming the group_id is returned in the response)
+      navigate(`/groups/${data.group_id}`);
+    } catch (error) {
+      console.error('Error joining group:', error);
       toast({
         title: "Error",
         description: "Failed to join the group. Please try again.",
@@ -113,10 +101,6 @@ const GroupInvite = () => {
     }
   };
 
-  if (!group) {
-    return null; // or a loading spinner
-  }
-
   return (
     <>
       <PublicHeader session={session} />
@@ -124,52 +108,48 @@ const GroupInvite = () => {
         <div className="max-w-md w-full space-y-8 bg-white p-6 rounded-lg shadow-sm">
           <div className="text-center space-y-4">
             <h1 className="text-2xl font-bold">
-              You've been invited to join
-            </h1>
-            <h2 className="text-3xl font-bold text-primary">
-              {group.title}
-            </h2>
-            {group.description && (
-              <p className="text-neutral-600">
-                {group.description}
-              </p>
-            )}
-
-            {isAuthenticated ? (
-              <>
-                {isMember ? (
-                  <>
-                    <p className="text-neutral-600">You are already in this group</p>
-                    <Button 
-                      onClick={() => navigate(`/groups/${id}`)} 
-                      className="w-full"
-                    >
-                      Go to group
-                    </Button>
-                  </>
+              {(session?.user && membership) ? (
+                  <>You're already in this group</>
                 ) : (
-                  <Button 
-                    onClick={handleAcceptInvite} 
-                    className="w-full"
-                    disabled={isJoining}
-                  >
-                    {isJoining ? "Joining..." : "Accept Invitation"}
-                  </Button>
-                )}
-              </>
+                <>You've been invited to join</>
+              )}
+            </h1>
+            {isChecking ? (
+              <Skeleton className="h-10 w-3/4 mx-auto" />
+            ) : (
+              <h2 className="text-3xl font-bold text-primary">
+                {groupInfo?.group_name}
+              </h2>
+            )}
+            {session?.user ? (
+              membership ? (
+                <div className="space-y-4">
+                  <Link to={`/groups/${groupInfo?.group_id}`}>
+                    <Button className="w-full">Go to group</Button>
+                  </Link>
+                </div>
+              ) : (
+                <Button 
+                  onClick={joinGroup} 
+                  disabled={isChecking || isJoining}
+                  className="w-full"
+                >
+                  {isJoining ? "Joining..." : "Join Group"}
+                </Button>
+              )
             ) : (
               <div className="space-y-4">
                 <p className="text-neutral-600">
                   To join this group, sign up / register first, then open the link again.
                 </p>
                 <Button asChild className="w-full">
-                  <Link to={`/signup?invite=${id}`}>
+                  <Link to={`/signup?invite=${token}`}>
                     Sign up for free
                   </Link>
                 </Button>
                 <div className="text-sm text-neutral-600">
                   Already have an account?{" "}
-                  <Link to={`/login?invite=${id}`} className="text-primary hover:underline">
+                  <Link to={`/login?invite=${token}`} className="text-primary hover:underline">
                     Log in
                   </Link>
                 </div>

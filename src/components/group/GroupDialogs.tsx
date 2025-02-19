@@ -22,7 +22,6 @@ interface GroupDialogsProps {
   onEditSuccess: () => void;
   onExpenseSuccess: () => void;
   onDeleteConfirm: () => void;
-  onCopyInviteLink: () => void;
 }
 
 export const GroupDialogs = ({
@@ -38,7 +37,6 @@ export const GroupDialogs = ({
   onEditSuccess,
   onExpenseSuccess,
   onDeleteConfirm,
-  onCopyInviteLink,
 }: GroupDialogsProps) => {
 
   const [inviteLink, setInviteLink] = useState<string>("");
@@ -83,6 +81,23 @@ export const GroupDialogs = ({
     }
   };
 
+  const copyInviteLink = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      toast({
+        title: "Success",
+        description: "Invite link copied to clipboard",
+      });
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      toast({
+        title: "Error",
+        description: "Failed to copy link",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -116,7 +131,7 @@ export const GroupDialogs = ({
                 value={inviteLink}
                 onClick={(e) => e.currentTarget.select()}
               />
-              <Button onClick={onCopyInviteLink}>
+              <Button onClick={copyInviteLink}>
                 Copy
               </Button>
             </div>

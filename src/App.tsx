@@ -51,7 +51,7 @@ const App = () => {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} />
             <Route path="/signup" element={!isAuthenticated ? <SignUp /> : <Navigate to="/dashboard" replace />} />
-            <Route path="/invite/:id" element={<GroupInvite />} />
+            <Route path="/invite/:token" element={<GroupInvite />} />
             <Route
               path="/dashboard"
               element={

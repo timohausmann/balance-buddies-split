@@ -189,7 +189,6 @@ const GroupDetail = () => {
                 onEditSuccess={handleEditSuccess}
                 onExpenseSuccess={handleExpenseSuccess}
                 onDeleteConfirm={handleDelete}
-                onCopyInviteLink={copyInviteLink}
               />
 
               <AddExpenseButton onClick={() => setIsExpenseFormOpen(true)} />
