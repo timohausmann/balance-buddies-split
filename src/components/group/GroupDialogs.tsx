@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
@@ -6,9 +5,6 @@ import { Button } from "@/components/ui/button";
 import { EditGroupForm } from "@/components/EditGroupForm";
 import { Group } from "@/types";
 import { ExpenseForm } from "@/components/ExpenseForm";
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface GroupDialogsProps {
   group: Group | undefined;
@@ -41,59 +37,6 @@ export const GroupDialogs = ({
   onDeleteConfirm,
   onCopyInviteLink,
 }: GroupDialogsProps) => {
-  const [inviteLink, setInviteLink] = useState<string>("");
-  const [isCreatingInvite, setIsCreatingInvite] = useState(false);
-  const { toast } = useToast();
-
-  const createInvitation = async () => {
-    if (!group) return null;
-    setIsCreatingInvite(true);
-
-    try {
-      const expiryDate = new Date();
-      expiryDate.setDate(expiryDate.getDate() + 7);
-
-      const { data: invitation, error } = await supabase
-        .from('invitations')
-        .insert({
-          group_id: group.id,
-          group_name: group.title,
-          expires_at: expiryDate.toISOString(),
-        })
-        .select('token')
-        .single();
-
-      if (error) throw error;
-
-      const newInviteLink = `${window.location.origin}/invite/${invitation.token}`;
-      setInviteLink(newInviteLink);
-      return newInviteLink;
-    } catch (error) {
-      console.error('Error creating invitation:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create invitation link. Please try again.",
-        variant: "destructive",
-      });
-      return null;
-    } finally {
-      setIsCreatingInvite(false);
-    }
-  };
-
-  const handleShareOpen = async (open: boolean) => {
-    if (open) {
-      setIsShareOpen(true);
-      const link = await createInvitation();
-      if (!link) {
-        setIsShareOpen(false);
-      }
-    } else {
-      setIsShareOpen(false);
-      setInviteLink("");
-    }
-  };
-
   return (
     <>
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -110,7 +53,7 @@ export const GroupDialogs = ({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isShareOpen} onOpenChange={handleShareOpen}>
+      <Dialog open={isShareOpen} onOpenChange={setIsShareOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Share Group</DialogTitle>
@@ -122,21 +65,13 @@ export const GroupDialogs = ({
             <div className="flex gap-2">
               <Input
                 readOnly
-                value={inviteLink}
+                value={`${window.location.origin}/invite/${group?.id}`}
                 onClick={(e) => e.currentTarget.select()}
-                placeholder={isCreatingInvite ? "Creating invitation link..." : ""}
-                disabled={isCreatingInvite}
               />
-              <Button 
-                onClick={() => inviteLink && onCopyInviteLink()} 
-                disabled={!inviteLink || isCreatingInvite}
-              >
+              <Button onClick={onCopyInviteLink}>
                 Copy
               </Button>
             </div>
-            <p className="text-xs text-neutral-400">
-              This invitation link will expire in 7 days.
-            </p>
           </div>
         </DialogContent>
       </Dialog>
