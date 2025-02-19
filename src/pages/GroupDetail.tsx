@@ -39,9 +39,10 @@ const GroupDetail = () => {
           )
         `)
         .eq('id', id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
+      if (!data) throw new Error('Group not found');
       return data;
     },
     enabled: !!id
@@ -141,6 +142,25 @@ const GroupDetail = () => {
       });
     }
   };
+
+  if (!group && !isGroupLoading) {
+    return (
+      <MainLayout>
+        <div className="max-w-2xl mx-auto text-center py-12">
+          <h1 className="text-2xl font-bold text-red-600 mb-2">Group not found</h1>
+          <p className="text-neutral-600 mb-4">
+            The group you're looking for doesn't exist or you don't have access to it.
+          </p>
+          <button
+            onClick={() => navigate('/groups')}
+            className="text-primary hover:underline"
+          >
+            Go back to groups
+          </button>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
