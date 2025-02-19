@@ -37,3 +37,15 @@ export interface ExpenseParticipant {
   share_amount?: number;
 }
 
+export interface Invitation {
+  token: string;
+  group_id: string;
+  group_name: string;
+  created_at: string;
+  expires_at: string;
+}
+
+export interface ValidatedInvitation {
+  group_id: string;
+  group_name: string;
+}

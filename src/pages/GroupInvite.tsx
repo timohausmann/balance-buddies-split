@@ -6,9 +6,10 @@ import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { ValidatedInvitation } from "@/types";
 
 const GroupInvite = () => {
-  const { id: token } = useParams();
+  const { id: token } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -23,7 +24,7 @@ const GroupInvite = () => {
     },
   });
 
-  const { data: invitation } = useQuery({
+  const { data: invitation } = useQuery<ValidatedInvitation>({
     queryKey: ['invitation', token],
     queryFn: async () => {
       if (!token) throw new Error('No invitation token provided');

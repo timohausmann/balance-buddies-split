@@ -187,6 +187,38 @@ export type Database = {
         }
         Relationships: []
       }
+      invitations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          group_id: string
+          group_name: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          group_id: string
+          group_name: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          group_id?: string
+          group_name?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -213,7 +245,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      validate_invitation_token: {
+        Args: {
+          p_token: string
+        }
+        Returns: {
+          group_id: string
+          group_name: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
