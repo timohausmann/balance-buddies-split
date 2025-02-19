@@ -1,15 +1,15 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { MainLayout } from "@/components/MainLayout";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
-import { ExpenseCard } from "@/components/ExpenseCard";
 import { useToast } from "@/hooks/use-toast";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { GroupHeader } from "@/components/group/GroupHeader";
 import { GroupDialogs } from "@/components/group/GroupDialogs";
 import { GroupExpensesList } from "@/components/group/GroupExpensesList";
 import { AddExpenseButton } from "@/components/group/AddExpenseButton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,9 +19,8 @@ const GroupDetail = () => {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: group, refetch: refetchGroup } = useQuery({
+  const { data: group, isLoading: isGroupLoading, refetch: refetchGroup } = useQuery({
     queryKey: ['group', id],
     queryFn: async () => {
       if (!id) throw new Error('No group ID provided');
@@ -45,11 +44,10 @@ const GroupDetail = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
-    onSuccess: () => setIsLoading(false)
+    enabled: !!id
   });
 
-  const { data: expenses, refetch: refetchExpenses } = useQuery({
+  const { data: expenses, isLoading: isExpensesLoading, refetch: refetchExpenses } = useQuery({
     queryKey: ['expenses', id],
     queryFn: async () => {
       if (!id) throw new Error('No group ID provided');
@@ -76,8 +74,7 @@ const GroupDetail = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
-    onSuccess: () => setIsLoading(false)
+    enabled: !!id
   });
 
   const { data: currentUser } = useQuery({
@@ -148,7 +145,7 @@ const GroupDetail = () => {
   return (
     <MainLayout>
       <div className="max-w-2xl mx-auto">
-        {isLoading ? (
+        {(isGroupLoading || isExpensesLoading) ? (
           <>
             <header className="mb-8">
               <Skeleton className="h-9 w-64 mb-2 bg-neutral-100" />
@@ -162,41 +159,43 @@ const GroupDetail = () => {
           </>
         ) : (
           group && (
-            <GroupHeader
-              group={group}
-              expenses={expenses}
-              isAdmin={isAdmin}
-              onEditClick={() => setIsEditOpen(true)}
-              onShareClick={() => setIsShareOpen(true)}
-              onDeleteClick={() => setIsDeleteDialogOpen(true)}
-            />
+            <>
+              <GroupHeader
+                group={group}
+                expenses={expenses}
+                isAdmin={isAdmin}
+                onEditClick={() => setIsEditOpen(true)}
+                onShareClick={() => setIsShareOpen(true)}
+                onDeleteClick={() => setIsDeleteDialogOpen(true)}
+              />
+
+              {group && expenses && (
+                <GroupExpensesList 
+                  expenses={expenses} 
+                  onAddExpenseClick={() => setIsExpenseFormOpen(true)}
+                />
+              )}
+
+              <GroupDialogs
+                group={group}
+                isEditOpen={isEditOpen}
+                setIsEditOpen={setIsEditOpen}
+                isShareOpen={isShareOpen}
+                setIsShareOpen={setIsShareOpen}
+                isExpenseFormOpen={isExpenseFormOpen}
+                setIsExpenseFormOpen={setIsExpenseFormOpen}
+                isDeleteDialogOpen={isDeleteDialogOpen}
+                setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+                onEditSuccess={handleEditSuccess}
+                onExpenseSuccess={handleExpenseSuccess}
+                onDeleteConfirm={handleDelete}
+                onCopyInviteLink={copyInviteLink}
+              />
+
+              <AddExpenseButton onClick={() => setIsExpenseFormOpen(true)} />
+            </>
           )
         )}
-
-        {group && expenses && (
-          <GroupExpensesList 
-            expenses={expenses} 
-            onAddExpenseClick={() => setIsExpenseFormOpen(true)}
-          />
-        )}
-
-        <GroupDialogs
-          group={group}
-          isEditOpen={isEditOpen}
-          setIsEditOpen={setIsEditOpen}
-          isShareOpen={isShareOpen}
-          setIsShareOpen={setIsShareOpen}
-          isExpenseFormOpen={isExpenseFormOpen}
-          setIsExpenseFormOpen={setIsExpenseFormOpen}
-          isDeleteDialogOpen={isDeleteDialogOpen}
-          setIsDeleteDialogOpen={setIsDeleteDialogOpen}
-          onEditSuccess={handleEditSuccess}
-          onExpenseSuccess={handleExpenseSuccess}
-          onDeleteConfirm={handleDelete}
-          onCopyInviteLink={copyInviteLink}
-        />
-
-        <AddExpenseButton onClick={() => setIsExpenseFormOpen(true)} />
       </div>
     </MainLayout>
   );
