@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { EditGroupForm } from "@/components/EditGroupForm";
 import { Group } from "@/types";
 import { ExpenseForm } from "@/components/ExpenseForm";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface GroupDialogsProps {
   group: Group | undefined;
@@ -37,6 +40,54 @@ export const GroupDialogs = ({
   onDeleteConfirm,
   onCopyInviteLink,
 }: GroupDialogsProps) => {
+  const [inviteLink, setInviteLink] = useState<string>("");
+
+  const { toast } = useToast();
+
+  const createInvitation = async () => {
+    if (!group) return;
+
+    try {
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 7);
+
+      const { data: invitation, error } = await supabase
+        .from('invitations')
+        .insert({
+          group_id: group.id,
+          group_name: group.title,
+          expires_at: expiryDate.toISOString(),
+        })
+        .select('token')
+        .single();
+
+      if (error) throw error;
+
+      const newInviteLink = `${window.location.origin}/invite/${invitation.token}`;
+      setInviteLink(newInviteLink);
+      return newInviteLink;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create invitation link. Please try again.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const handleShareOpen = async (open: boolean) => {
+    if (open) {
+      const link = await createInvitation();
+      if (link) {
+        setIsShareOpen(true);
+      }
+    } else {
+      setIsShareOpen(false);
+      setInviteLink("");
+    }
+  };
+
   return (
     <>
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -53,7 +104,7 @@ export const GroupDialogs = ({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isShareOpen} onOpenChange={setIsShareOpen}>
+      <Dialog open={isShareOpen} onOpenChange={handleShareOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Share Group</DialogTitle>
@@ -65,13 +116,16 @@ export const GroupDialogs = ({
             <div className="flex gap-2">
               <Input
                 readOnly
-                value={`${window.location.origin}/invite/${group?.id}`}
+                value={inviteLink}
                 onClick={(e) => e.currentTarget.select()}
               />
-              <Button onClick={onCopyInviteLink}>
+              <Button onClick={() => inviteLink && onCopyInviteLink()}>
                 Copy
               </Button>
             </div>
+            <p className="text-xs text-neutral-400">
+              This invitation link will expire in 7 days.
+            </p>
           </div>
         </DialogContent>
       </Dialog>
