@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Github, Heart } from "lucide-react";
 
 const Landing = () => {
   const { data: session } = useQuery({
@@ -18,7 +19,7 @@ const Landing = () => {
   return (
     <>
       <PublicHeader session={session} />
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 flex flex-col">
         {/* Background SVG */}
         <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none">
           <svg
@@ -42,7 +43,7 @@ const Landing = () => {
           </svg>
         </div>
 
-        <div className="container mx-auto px-4 py-16 md:py-24 pt-32 relative">
+        <div className="container mx-auto px-4 py-16 md:py-24 pt-32 relative flex-grow">
           <div className="grid grid-cols-1 gap-12">
             <div className="space-y-8 max-w-3xl mx-auto text-center">
               <motion.div
@@ -101,12 +102,67 @@ const Landing = () => {
                   <p className="text-neutral-600">Manage group expenses</p>
                 </div>
               </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+                className="max-w-2xl mx-auto mt-12 space-y-8 text-neutral-600"
+              >
+                <div className="glass rounded-xl p-8">
+                  <p className="mb-6">
+                    This project is a no-code case study. It was created with{" "}
+                    <a href="https://lovable.dev" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-dark underline inline-flex items-center">
+                      Lovable <Heart className="ml-1 w-4 h-4" />
+                    </a>{" "}
+                    using 224 messages, 176 AI Edits and 4 human edits.
+                  </p>
+                  <p className="mb-4">The MVP scope is functional and allows you to:</p>
+                  <ul className="list-disc pl-6 space-y-2 mb-6">
+                    <li>Sign up and Login</li>
+                    <li>Manage your profile (Name, Email, Password)</li>
+                    <li>Create groups</li>
+                    <li>Invite group members</li>
+                    <li>Record expenses in groups</li>
+                    <li>Split expenses in groups equally, by percent or by amount</li>
+                  </ul>
+                </div>
+              </motion.div>
             </div>
           </div>
         </div>
+
+        <motion.footer
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
+          className="py-6 text-center text-neutral-600"
+        >
+          <p className="flex items-center justify-center gap-6">
+            <a
+              href="https://github.com/timohausmann/balance-buddies-split"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center hover:text-primary transition-colors"
+            >
+              <Github className="mr-2 h-5 w-5" />
+              View on GitHub
+            </a>
+            <a
+              href="https://lovable.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center hover:text-primary transition-colors"
+            >
+              <Heart className="mr-2 h-5 w-5" />
+              Made with Lovable
+            </a>
+          </p>
+        </motion.footer>
       </div>
     </>
   );
 };
 
 export default Landing;
+
