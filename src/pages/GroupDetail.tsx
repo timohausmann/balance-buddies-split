@@ -16,6 +16,7 @@ const GroupDetail = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -124,6 +125,23 @@ const GroupDetail = () => {
     refetchExpenses();
   };
 
+  const copyInviteLink = async () => {
+    const inviteUrl = `${window.location.origin}/invite/${id}`;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      toast({
+        title: "Link copied!",
+        description: "The invite link has been copied to your clipboard."
+      });
+    } catch (err) {
+      toast({
+        title: "Failed to copy",
+        description: "Please try copying the link manually.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <MainLayout>
       <div className="max-w-2xl mx-auto">
@@ -147,6 +165,7 @@ const GroupDetail = () => {
                 expenses={expenses}
                 isAdmin={isAdmin}
                 onEditClick={() => setIsEditOpen(true)}
+                onShareClick={() => setIsShareOpen(true)}
                 onDeleteClick={() => setIsDeleteDialogOpen(true)}
               />
 
@@ -161,6 +180,8 @@ const GroupDetail = () => {
                 group={group}
                 isEditOpen={isEditOpen}
                 setIsEditOpen={setIsEditOpen}
+                isShareOpen={isShareOpen}
+                setIsShareOpen={setIsShareOpen}
                 isExpenseFormOpen={isExpenseFormOpen}
                 setIsExpenseFormOpen={setIsExpenseFormOpen}
                 isDeleteDialogOpen={isDeleteDialogOpen}
