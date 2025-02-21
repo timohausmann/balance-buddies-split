@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -109,13 +108,9 @@ const Landing = () => {
                 transition={{ delay: 0.6, duration: 0.5 }}
                 className="max-w-2xl mx-auto mt-12 space-y-8 text-neutral-600"
               >
-                <div className="glass rounded-xl p-8">
+                <div className="glass rounded-xl p-8 text-left">
                   <p className="mb-6">
-                    This project is a no-code case study. It was created with{" "}
-                    <a href="https://lovable.dev" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-dark underline inline-flex items-center">
-                      Lovable <Heart className="ml-1 w-4 h-4" />
-                    </a>{" "}
-                    using 224 messages, 176 AI Edits and 4 human edits.
+                    This project is a no-code case study, created using 224 messages, 176 AI Edits and 4 human edits.
                   </p>
                   <p className="mb-4">The MVP scope is functional and allows you to:</p>
                   <ul className="list-disc pl-6 space-y-2 mb-6">
@@ -165,4 +160,3 @@ const Landing = () => {
 };
 
 export default Landing;
-
