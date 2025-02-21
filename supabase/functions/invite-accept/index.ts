@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
     // Parse request body
     const { token } = await req.json();
     if (!token) {
-      return new Response(JSON.stringify({ error: "Token is required" }), { status: 400 });
+      return new Response(JSON.stringify({ error: "Token is required" }), { status: 400, headers: { ...corsHeaders } });
     }
 
     // Initialize Supabase client with service role key
@@ -57,14 +57,24 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get user from request headers (Supabase Auth should pass user_id)
-    const userId = req.headers.get("x-user-id");
-    if (!userId) {
+    // Get the authenticated user from the Authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
       return new Response(JSON.stringify(
-        { error: "Unauthorized" }), 
+        { error: "Unauthorized (no auth header)" }), 
         { status: 401, headers: { ...corsHeaders } }
       );
     }
+    const jwt = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
+    
+    if (userError || !user) {
+      return new Response(JSON.stringify(
+        { error: "Unauthorized (no user)" }), 
+        { status: 401, headers: { ...corsHeaders } }
+      );
+    }
+    const userId = user.id;
 
     // Add user to the group
     const { error: insertError } = await supabase

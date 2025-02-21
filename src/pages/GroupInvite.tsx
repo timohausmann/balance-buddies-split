@@ -87,8 +87,10 @@ const GroupInvite = () => {
         description: "You've successfully joined the group!",
       });
 
-      // Navigate to the group (assuming the group_id is returned in the response)
-      navigate(`/groups/${data.group_id}`);
+      const { group_id } = JSON.parse(data);
+
+      // Navigate to the group
+      navigate(`/groups/${group_id}`);
     } catch (error) {
       console.error('Error joining group:', error);
       toast({
