@@ -57,7 +57,7 @@ const Landing = () => {
                   Balance Buddies makes group expense tracking simple and stress-free. Perfect for roommates, trips, and shared expenses.
                 </p>
               </motion.div>
-              
+
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -90,15 +90,15 @@ const Landing = () => {
               >
                 <div className="text-center p-6 glass rounded-xl">
                   <h3 className="text-2xl font-bold text-primary">Simple</h3>
-                  <p className="text-neutral-600">Easy expense tracking</p>
-                </div>
-                <div className="text-center p-6 glass rounded-xl">
-                  <h3 className="text-2xl font-bold text-primary">Fair</h3>
-                  <p className="text-neutral-600">Split costs evenly</p>
+                  <p className="text-neutral-600">Effortless expense tracking</p>
                 </div>
                 <div className="text-center p-6 glass rounded-xl">
                   <h3 className="text-2xl font-bold text-primary">Social</h3>
-                  <p className="text-neutral-600">Manage group expenses</p>
+                  <p className="text-neutral-600">Split Costs with Friends</p>
+                </div>
+                <div className="text-center p-6 glass rounded-xl">
+                  <h3 className="text-2xl font-bold text-primary">Free</h3>
+                  <p className="text-neutral-600">No Cost, All Benefits</p>
                 </div>
               </motion.div>
 
@@ -106,13 +106,15 @@ const Landing = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
-                className="max-w-2xl mx-auto mt-12 space-y-8 text-neutral-600"
+                className="max-w-3xl mx-auto mt-12 space-y-8 text-neutral-600"
               >
                 <div className="glass rounded-xl p-8 text-left">
-                  <p className="mb-6">
-                    This project is a no-code case study, created using 224 messages, 176 AI Edits and 4 human edits.
+                  <p className="mb-3">
+                    This project is a no-code case study and was created with Lovable AI.
                   </p>
-                  <p className="mb-4">The MVP scope is functional and allows you to:</p>
+                  <p className="mb-3">
+                    This functional demo allows you to:
+                  </p>
                   <ul className="list-disc pl-6 space-y-2 mb-6">
                     <li>Sign up and Login</li>
                     <li>Manage your profile (Name, Email, Password)</li>
