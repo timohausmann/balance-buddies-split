@@ -74,16 +74,15 @@ export function ParticipantRow({
   };
 
   return (
-    <div className={`flex items-center gap-3 py-1 px-3 rounded-lg transition-all bg-neutral-50 ${
-      isParticipant ? "opacity-100" : "opacity-50"
-    }`}>
+    <div className={`flex items-center gap-3 py-1 px-3 rounded-lg transition-all bg-neutral-50 ${isParticipant ? "opacity-100" : "opacity-50"
+      }`}>
       <div className="flex items-center gap-2 flex-1">
         <Avatar className="h-8 w-8 bg-neutral-100">
           <AvatarFallback className="flex items-center justify-center">
             <UserRound className="h-4 w-4 text-neutral-500" />
           </AvatarFallback>
         </Avatar>
-        
+
         <button
           type="button"
           onClick={(e) => {
@@ -93,9 +92,8 @@ export function ParticipantRow({
             }
           }}
           disabled={!isParticipant}
-          className={`flex items-center gap-2 ${
-            isPayer ? "text-primary" : ""
-          }`}
+          className={`flex items-center gap-2 ${isPayer ? "text-primary" : ""
+            }`}
         >
           <span className="truncate">{member.profiles?.display_name}</span>
           {isPayer && <Wallet className="h-4 w-4 shrink-0" />}
@@ -104,7 +102,7 @@ export function ParticipantRow({
 
       {isParticipant && (
         <>
-          <div className="w-[120px] shrink-0">
+          <div className="w-[120px] shrink-0 hidden md:block">
             <Slider
               defaultValue={[localShare]}
               value={[localShare]}
